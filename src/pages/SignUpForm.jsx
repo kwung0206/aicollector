@@ -10,12 +10,12 @@ import {
 
 // ✅ SVG 아바타 옵션 (public/avatars/ 아래에 저장된 파일들)
 const avatarOptions = [
-    { id: "blue",   label: "쿨 블루", src: "/avatars/avatar-blue.svg" },
-    { id: "purple", label: "바이올렛", src: "/avatars/avatar-purple.svg" },
-    { id: "orange", label: "선셋",    src: "/avatars/avatar-orange.svg" },
-    { id: "green",  label: "민트",    src: "/avatars/avatar-green.svg" },
+    { id: "blue",   label: "블루", src: "/avatars/avatar-blue.svg" },
+    { id: "purple", label: "퍼플", src: "/avatars/avatar-purple.svg" },
+    { id: "orange", label: "오렌지",    src: "/avatars/avatar-orange.svg" },
+    { id: "green",  label: "그린",    src: "/avatars/avatar-green.svg" },
     { id: "pink",   label: "핑크",    src: "/avatars/avatar-pink.svg" },
-    { id: "mono",   label: "모노톤",  src: "/avatars/avatar-mono.svg" },
+    { id: "mono",   label: "화이트",  src: "/avatars/avatar-mono.svg" },
 ];
 
 const SignUpForm = () => {
@@ -38,7 +38,7 @@ const SignUpForm = () => {
     const [age, setAge] = useState("");
     const [gender, setGender] = useState("M");   // 기본값: 남자
     const [nickname, setNickname] = useState("");
-    const [selectedAvatar, setSelectedAvatar] = useState(null); // "blue" 같은 id
+    const [selectedAvatar, setSelectedAvatar] = useState("blue"); // "blue" 같은 id
 
     const [password, setPassword] = useState(initialPassword || "");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -287,7 +287,7 @@ const SignUpForm = () => {
                         <br />
                         프로필 이미지는 먼저 기본 아바타 중 하나를 선택하고,
                         <br />
-                        나중에 마이페이지에서 직접 업로드해 변경할 수 있게 만들 예정입니다.
+                        나중에 마이페이지에서 직접 업로드 해 변경할 수 있습니다.
                     </p>
                 </div>
 
@@ -524,7 +524,7 @@ const SignUpForm = () => {
                             <label>프로필 이미지 선택</label>
                             <p className="avatar-desc">
                                 먼저 기본 아바타 중 하나를 선택해 주세요. 나중에 직접 이미지를
-                                업로드할 수 있게 만들 예정입니다.
+                                업로드할 수 있습니다.
                             </p>
 
                             <div className="profile-avatars">

@@ -1,3 +1,5 @@
+// Login.scss
+
 /* =========================
    Login Page
    ========================= */
@@ -716,8 +718,8 @@
 
 .avatar-option {
   position: relative;
-  width: 70px;
-  height: 70px;
+  width: 65px;
+  height: 65px;
   border-radius: 999px;
   border: 1px solid rgba(55, 65, 81, 0.9);
   background: rgba(15, 23, 42, 1);
@@ -754,7 +756,7 @@
 
 /* 각 아바타 색감 (나중에 진짜 이미지로 교체 가능) */
 .avatar--blue {
-  background: radial-gradient(circle at 30% 0, #38bdf8, #1d4ed8);
+  background: radial-gradient(circle at 40% 0, #38bdf8, #1d4ed8);
 }
 
 .avatar--purple {

@@ -23,18 +23,29 @@ const Login = () => {
         }
 
         try {
-            // ✅ 실제 로그인 API 호출 (api/auth.js 안의 loginUser 사용)
+            // ✅ 실제 로그인 API 호출
             const data = await loginUser({
                 userId: userId.trim(),
                 password,
             });
 
+            console.log("🔐 로그인 응답:", data);
+
+            // ⬇ 백엔드에서 주는 토큰 꺼내서 localStorage에 저장
+            const token = data.token ?? data.accessToken ?? null;
+            const payloadUser = data.user ?? data;
+
+            if (token) {
+                localStorage.setItem("ai-collector-token", token);
+            }
+
             // 🔐 응답 형식에 맞게 필드 이름만 맞춰줘
             const userInfo = {
-                userId: data.userId,
-                nickname: data.nickname,
-                email: data.email,
-                profileImage: data.profileImage || "blue", // 없으면 기본 아바타
+                userId: payloadUser.userId,
+                nickname: payloadUser.nickname,
+                email: payloadUser.email,
+                profileImage: payloadUser.profileImage || "blue", // 없으면 기본 아바타
+                tokenCount: payloadUser.tokenCount ?? 0,
             };
 
             // 전역 AuthContext + localStorage에 저장
@@ -162,4 +173,5 @@ const Login = () => {
     );
 };
 
+// ⬅️ 이게 *반드시* 있어야 App.jsx에서 import Login 할 수 있음
 export default Login;

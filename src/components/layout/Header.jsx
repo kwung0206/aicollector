@@ -24,7 +24,12 @@ const resolveAvatarSrc = (profileImage) => {
 const Header = () => {
     const navigate = useNavigate();
     const auth = useAuth();
-    const user = auth?.user;
+
+    // 🔹 rawUser: 로그인 응답 전체
+    const rawUser = auth?.user;
+    // 🔹 user: rawUser.user가 있으면 그걸, 아니면 rawUser 자체
+    const user = rawUser?.user ?? rawUser;
+
     const logout = auth?.logout;
 
     const [openMenu, setOpenMenu] = useState(false);
@@ -34,6 +39,7 @@ const Header = () => {
         "nav-link" + (isActive ? " nav-link--active" : "");
 
     const profileSrc = resolveAvatarSrc(user?.profileImage);
+
 
     // 바깥 클릭 시 드롭다운 닫기
     useEffect(() => {
@@ -55,10 +61,11 @@ const Header = () => {
         if (logout) {
             logout(); // 토큰/상태 정리
         }
+        // ✅ 로그아웃 후 새로고침 + 로그인 페이지로
         window.location.replace("/login");
     };
 
-    // ✅ 새로고침 + 홈 이동용 핸들러
+    // ✅ 홈/로고 클릭 시 새로고침 + 홈 이동
     const goHomeWithReload = (e) => {
         if (e) e.preventDefault();
         window.location.href = "/";
@@ -70,7 +77,7 @@ const Header = () => {
                 {/* 왼쪽 로고 */}
                 <div
                     className="logo"
-                    onClick={goHomeWithReload}   // ✅ 여기 변경
+                    onClick={goHomeWithReload}
                     style={{ cursor: "pointer" }}
                 >
                     <img
@@ -83,12 +90,8 @@ const Header = () => {
 
                 {/* 오른쪽 네비게이션 */}
                 <nav className="nav">
-                    {/* ✅ 홈 클릭 시 새로고침 + 홈 */}
-                    <NavLink
-                        to="/"
-                        className={homeClass}
-                        onClick={goHomeWithReload}
-                    >
+                    {/* 홈 클릭 시 새로고침 + 홈 */}
+                    <NavLink to="/" className={homeClass} onClick={goHomeWithReload}>
                         홈
                     </NavLink>
 
@@ -107,13 +110,13 @@ const Header = () => {
                                 className="nav-profile"
                                 onClick={() => setOpenMenu((v) => !v)}
                             >
-                                <span className="nav-profile-avatar-wrapper">
-                                    <img
-                                        src={profileSrc}
-                                        alt="프로필"
-                                        className="nav-profile-avatar"
-                                    />
-                                </span>
+                <span className="nav-profile-avatar-wrapper">
+                  <img
+                      src={profileSrc}
+                      alt="프로필"
+                      className="nav-profile-avatar"
+                  />
+                </span>
                             </button>
 
                             {openMenu && (
@@ -123,7 +126,7 @@ const Header = () => {
                                         className="nav-profile-menu-item"
                                         onClick={() => {
                                             setOpenMenu(false);
-                                            navigate("/mypage"); // ✅ 프로필
+                                            navigate("/profile"); // ✅ 프로필 페이지로 이동
                                         }}
                                     >
                                         프로필
@@ -133,7 +136,7 @@ const Header = () => {
                                         className="nav-profile-menu-item"
                                         onClick={() => {
                                             setOpenMenu(false);
-                                            navigate("/settings");
+                                            navigate("/settings"); // 세팅 페이지(추후 구현)
                                         }}
                                     >
                                         세팅
