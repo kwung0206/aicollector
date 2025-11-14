@@ -1,0 +1,225 @@
+/* =========================
+   Video Upload Page
+   ========================= */
+
+.video-upload-page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 3rem 1.8rem 4rem;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+.video-upload-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 상단 헤더 */
+.video-upload-header {
+  margin-bottom: 1.8rem;
+}
+
+.video-upload-eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  margin: 0 0 0.4rem;
+}
+
+.video-upload-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f9fafb;
+}
+
+.video-upload-title span {
+  background-image: linear-gradient(135deg, #38bdf8, #a855f7, #f97316);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.video-upload-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* 메인 카드 */
+.video-upload-card {
+  margin-top: 1.4rem;
+  border-radius: 24px;
+  padding: 1.7rem 1.8rem 1.6rem;
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 60%),
+          linear-gradient(
+                          145deg,
+                          rgba(15, 23, 42, 0.98),
+                          rgba(15, 23, 42, 0.94),
+                          rgba(15, 23, 42, 0.98)
+          );
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+/* 공통 섹션 래퍼 */
+.video-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.video-upload-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.video-upload-section-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.video-upload-section-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* 태그 영역: VideoGallery.scss와 동일 컨셉 */
+.video-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.video-tag-pill {
+  border-radius: 999px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  background: rgba(15, 23, 42, 0.96);
+  padding: 0.26rem 0.9rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.18s ease-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-tag-pill:hover {
+  border-color: rgba(129, 140, 248, 0.9);
+  color: #e5e7eb;
+}
+
+.video-tag-pill--active {
+  border-color: rgba(168, 85, 247, 0.95);
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
+          radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.24), transparent 60%),
+          rgba(15, 23, 42, 0.98);
+  color: #e5e7eb;
+  box-shadow:
+          0 0 0 1px rgba(129, 140, 248, 0.5),
+          0 12px 32px rgba(15, 23, 42, 0.9);
+}
+
+/* 파일 선택 행 */
+.video-upload-file-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.video-upload-file-btn {
+  white-space: nowrap;
+}
+
+.video-upload-file-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.video-upload-file-name {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #e5e7eb;
+}
+
+.video-upload-file-hint {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* 하단 액션 버튼 */
+.video-upload-actions {
+  margin-top: 0.4rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.video-upload-actions .btn[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+  .video-upload-page {
+    padding-top: 2.2rem;
+  }
+
+  .video-upload-card {
+    padding: 1.4rem 1.3rem 1.4rem;
+  }
+
+  .video-upload-file-row {
+    align-items: flex-start;
+  }
+
+  .video-upload-actions {
+    justify-content: center;
+  }
+}
+.video-upload-preview {
+  margin-top: 1rem;
+  border-radius: 16px;
+  padding: 0.9rem 1rem 1rem;
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.14), transparent 55%),
+          linear-gradient(
+                          145deg,
+                          rgba(15, 23, 42, 0.98),
+                          rgba(15, 23, 42, 0.96),
+                          rgba(15, 23, 42, 0.98)
+          );
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+}
+
+.video-upload-preview-title {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.video-upload-preview-player {
+  margin-top: 0.6rem;
+}
+
+.video-upload-preview-player video {
+  width: 100%;
+  max-height: 360px;
+  border-radius: 12px;
+  background: #000;  /* 로딩 전에도 까만 배경 */
+}

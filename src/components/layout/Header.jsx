@@ -25,11 +25,8 @@ const Header = () => {
     const navigate = useNavigate();
     const auth = useAuth();
 
-    // 🔹 rawUser: 로그인 응답 전체
     const rawUser = auth?.user;
-    // 🔹 user: rawUser.user가 있으면 그걸, 아니면 rawUser 자체
     const user = rawUser?.user ?? rawUser;
-
     const logout = auth?.logout;
 
     const [openMenu, setOpenMenu] = useState(false);
@@ -40,8 +37,6 @@ const Header = () => {
 
     const profileSrc = resolveAvatarSrc(user?.profileImage);
 
-
-    // 바깥 클릭 시 드롭다운 닫기
     useEffect(() => {
         if (!openMenu) return;
 
@@ -57,15 +52,10 @@ const Header = () => {
 
     const handleLogout = () => {
         setOpenMenu(false);
-
-        if (logout) {
-            logout(); // 토큰/상태 정리
-        }
-        // ✅ 로그아웃 후 새로고침 + 로그인 페이지로
+        if (logout) logout();
         window.location.replace("/login");
     };
 
-    // ✅ 홈/로고 클릭 시 새로고침 + 홈 이동
     const goHomeWithReload = (e) => {
         if (e) e.preventDefault();
         window.location.href = "/";
@@ -90,34 +80,37 @@ const Header = () => {
 
                 {/* 오른쪽 네비게이션 */}
                 <nav className="nav">
-                    {/* 홈 클릭 시 새로고침 + 홈 */}
+                    {/* 홈: 새로고침 + 홈 */}
                     <NavLink to="/" className={homeClass} onClick={goHomeWithReload}>
                         홈
                     </NavLink>
 
-                    <button type="button" className="nav-link">
+                    {/* ✅ 영상 모음: /videos 페이지로 이동 */}
+                    <NavLink to="/videos" className={homeClass}>
                         영상 모음
-                    </button>
+                    </NavLink>
+
+                    {/* 컬렉션은 나중에 구현 */}
                     <button type="button" className="nav-link">
                         컬렉션
                     </button>
 
                     {user ? (
-                        // 🔽 프로필 + 드롭다운 래퍼
                         <div className="nav-profile-wrap" ref={menuRef}>
                             <button
                                 type="button"
                                 className="nav-profile"
                                 onClick={() => setOpenMenu((v) => !v)}
                             >
-                <span className="nav-profile-avatar-wrapper">
-                  <img
-                      src={profileSrc}
-                      alt="프로필"
-                      className="nav-profile-avatar"
-                  />
-                </span>
+                                <span className="nav-profile-avatar-wrapper">
+                                  <img
+                                      src={profileSrc}
+                                      alt="프로필"
+                                      className="nav-profile-avatar"
+                                  />
+                                </span>
                             </button>
+
 
                             {openMenu && (
                                 <div className="nav-profile-menu">
@@ -126,21 +119,24 @@ const Header = () => {
                                         className="nav-profile-menu-item"
                                         onClick={() => {
                                             setOpenMenu(false);
-                                            navigate("/profile"); // ✅ 프로필 페이지로 이동
+                                            navigate("/profile");
                                         }}
                                     >
                                         프로필
                                     </button>
+
+                                    {/* ✅ 세팅 → 영상 업로드, 경로는 /videos/upload */}
                                     <button
                                         type="button"
                                         className="nav-profile-menu-item"
                                         onClick={() => {
                                             setOpenMenu(false);
-                                            navigate("/settings"); // 세팅 페이지(추후 구현)
+                                            navigate("/videos/upload");
                                         }}
                                     >
-                                        세팅
+                                        영상 업로드
                                     </button>
+
                                     <button
                                         type="button"
                                         className="nav-profile-menu-item nav-profile-menu-item--danger"
@@ -150,6 +146,7 @@ const Header = () => {
                                     </button>
                                 </div>
                             )}
+
                         </div>
                     ) : (
                         <button

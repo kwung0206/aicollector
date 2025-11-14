@@ -1,0 +1,197 @@
+/* =========================
+   Video Gallery Page
+   ========================= */
+
+.video-page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 3rem 1.8rem 4rem;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+.video-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 상단 헤더 영역 */
+.video-header {
+  margin-bottom: 1.8rem;
+}
+
+.video-eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  margin: 0 0 0.4rem;
+}
+
+.video-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f9fafb;
+}
+
+.video-title span {
+  background-image: linear-gradient(135deg, #38bdf8, #a855f7, #f97316);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.video-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* 검색 + 태그를 감싸는 글래스 카드 */
+.video-controls-card {
+  margin-top: 1.2rem;
+  padding: 1.4rem 1.6rem 1.3rem;
+  border-radius: 22px;
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 60%),
+          linear-gradient(
+                          145deg,
+                          rgba(15, 23, 42, 0.98),
+                          rgba(15, 23, 42, 0.94),
+                          rgba(15, 23, 42, 0.98)
+          );
+  border: 1px solid rgba(129, 140, 248, 0.9);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(18px);
+}
+
+/* 검색 행 */
+.video-search-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.video-search-field {
+  flex: 1;
+}
+
+/* 로그인/회원가입 인풋 스타일과 통일 */
+.video-search-field input {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  background: rgba(15, 23, 42, 0.96);
+  padding: 0.6rem 0.9rem;
+  color: #f9fafb;
+  font-size: 0.9rem;
+}
+
+.video-search-field input::placeholder {
+  color: #6b7280;
+}
+
+.video-search-field input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+}
+
+/* 검색 버튼은 기존 .btn .btn-primary 스타일 재사용 */
+.video-search-btn {
+  white-space: nowrap;
+}
+
+/* 태그 영역 */
+.video-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+/* 태그 pill - gender-pill / tag 스타일 믹스 */
+.video-tag-pill {
+  border-radius: 999px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  background: rgba(15, 23, 42, 0.96);
+  padding: 0.26rem 0.9rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.18s ease-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-tag-pill:hover {
+  border-color: rgba(129, 140, 248, 0.9);
+  color: #e5e7eb;
+}
+
+/* 활성 태그 */
+.video-tag-pill--active {
+  border-color: rgba(168, 85, 247, 0.95);
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
+          radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.24), transparent 60%),
+          rgba(15, 23, 42, 0.98);
+  color: #e5e7eb;
+  box-shadow:
+          0 0 0 1px rgba(129, 140, 248, 0.5),
+          0 12px 32px rgba(15, 23, 42, 0.9);
+}
+
+/* 아직 영상 없을 때 안내 카드 */
+.video-empty-card {
+  margin-top: 1.8rem;
+  border-radius: 18px;
+  padding: 1.4rem 1.5rem 1.3rem;
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.14), transparent 55%),
+          linear-gradient(
+                          145deg,
+                          rgba(15, 23, 42, 0.98),
+                          rgba(15, 23, 42, 0.96),
+                          rgba(15, 23, 42, 0.98)
+          );
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.9);
+}
+
+.video-empty-title {
+  margin: 0 0 0.4rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.video-empty-desc {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+  .video-page {
+    padding-top: 2.2rem;
+  }
+
+  .video-controls-card {
+    padding: 1.3rem 1.2rem 1.1rem;
+  }
+
+  .video-search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .video-search-btn {
+    padding: 0.45rem 1rem;   /* ⬅ 세로 크기 줄이기 */
+    font-size: 0.85rem;      /* (원하면 글자도 살짝 줄이기) */
+  }
+}

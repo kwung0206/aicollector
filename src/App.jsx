@@ -8,6 +8,8 @@ import SignUp from "./pages/SignUp.jsx";
 import SignUpForm from "./pages/SignUpForm.jsx";
 import SignUpEmail from "./pages/SignUpEmail.jsx"
 import ProfilePage from "./pages/ProfilePage.jsx";
+import VideoGallery from "./pages/VideoGallery";
+import VideoUpload from "./pages/VideoUpload";
 function App() {
     return (
         <div className="app">
@@ -25,6 +27,8 @@ function App() {
                     <Route path="/signup/email" element={<SignUpEmail />} /> {/* 이메일 인증 */}
                     <Route path="/signup/form" element={<SignUpForm />} /> {/* 실제 회원가입 */}
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/videos" element={<VideoGallery />} />
+                    <Route path="/videos/upload" element={<VideoUpload />} />
                 </Routes>
             </main>
 
