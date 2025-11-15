@@ -8,6 +8,18 @@
   width: 100%;
   padding: 3rem 1.8rem 4rem;
   font-family: "Noto Sans KR", sans-serif;
+  animation: vu-page-in 0.55s ease-out;
+}
+
+@keyframes vu-page-in {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .video-inner {
@@ -48,7 +60,7 @@
   line-height: 1.7;
 }
 
-/* 검색 + 태그를 감싸는 글래스 카드 */
+/* 검색 + 태그 카드 */
 .video-controls-card {
   margin-top: 1.2rem;
   padding: 1.4rem 1.6rem 1.3rem;
@@ -78,7 +90,6 @@
   flex: 1;
 }
 
-/* 로그인/회원가입 인풋 스타일과 통일 */
 .video-search-field input {
   width: 100%;
   border-radius: 10px;
@@ -99,7 +110,6 @@
   box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
 }
 
-/* 검색 버튼은 기존 .btn .btn-primary 스타일 재사용 */
 .video-search-btn {
   white-space: nowrap;
 }
@@ -111,7 +121,6 @@
   gap: 0.45rem;
 }
 
-/* 태그 pill - gender-pill / tag 스타일 믹스 */
 .video-tag-pill {
   border-radius: 999px;
   border: 1px solid rgba(55, 65, 81, 0.9);
@@ -131,7 +140,6 @@
   color: #e5e7eb;
 }
 
-/* 활성 태그 */
 .video-tag-pill--active {
   border-color: rgba(168, 85, 247, 0.95);
   background:
@@ -144,7 +152,13 @@
           0 12px 32px rgba(15, 23, 42, 0.9);
 }
 
-/* 아직 영상 없을 때 안내 카드 */
+/* 로딩/비어있음 */
+.video-loading {
+  margin-top: 1.6rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
 .video-empty-card {
   margin-top: 1.8rem;
   border-radius: 18px;
@@ -175,7 +189,429 @@
   line-height: 1.6;
 }
 
-/* 반응형 */
+/* =========================
+   그리드 / 썸네일
+   ========================= */
+
+.video-grid {
+  margin-top: 1.8rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.3rem 1.1rem;
+}
+
+.video-tile {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+.video-thumb {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #020617;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.95);
+  cursor: pointer;
+}
+
+.video-thumb video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 썸네일 오버레이 + 플레이 아이콘 */
+.video-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background:
+          radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
+          radial-gradient(circle at 50% 100%, rgba(236, 72, 153, 0.22), transparent 60%);
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.video-thumb-chip {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.75rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #e5e7eb;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+.video-thumb-play {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  border: 2px solid rgba(248, 250, 252, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 30% 0%, rgba(56, 189, 248, 0.2), rgba(15, 23, 42, 0.95));
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.9);
+}
+
+.video-thumb-play-icon {
+  font-size: 1.2rem;
+  color: #f9fafb;
+  margin-left: 0.1rem;
+}
+
+.video-thumb:hover .video-thumb-overlay {
+  opacity: 1;
+  transform: scale(1.04);
+}
+
+/* 메타 정보 */
+.video-meta {
+  margin-top: 1rem;
+}
+
+.video-meta-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.video-meta-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  line-height: 1.4;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.video-meta-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.video-meta-tag {
+  font-size: 0.72rem;
+  color: #a5b4fc;
+  background: rgba(30, 64, 175, 0.32);
+  border-radius: 999px;
+  padding: 0.12rem 0.5rem;
+}
+
+/* 좋아요/싫어요 + 통계 */
+.video-meta-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.video-meta-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* 아이콘 스타일 */
+.video-like-btn,
+.video-dislike-btn {
+  border: none;
+  background: transparent;
+  padding: 0.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+          transform 0.16s ease-out,
+          color 0.16s ease-out,
+          text-shadow 0.16s ease-out;
+  color: #9ca3af;
+}
+
+/* 👍 아이콘과 숫자는 거의 붙게 */
+.video-like-btn {
+  margin-right: 0.1rem;
+}
+
+/* 👎 쪽은 숫자와 아이콘 사이를 넓게 */
+.video-dislike-btn {
+  margin-left: 0.9rem;
+  margin-right: 0.1rem;
+}
+
+/* 숫자 공통 */
+.video-meta-count {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  min-width: 1.4rem;
+  text-align: right;
+}
+
+/* 필요 없어져서 0 처리 */
+.video-meta-actions .video-meta-count:first-of-type {
+  margin-right: 0;
+}
+
+.video-like-btn svg,
+.video-dislike-btn svg {
+  font-size: 0.95rem;
+}
+
+.video-like-btn:hover,
+.video-dislike-btn:hover {
+  transform: translateY(-1px) scale(1.05);
+  color: #e5e7eb;
+}
+
+.video-like-btn.is-active svg {
+  color: #38bdf8;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.9);
+}
+
+.video-dislike-btn.is-active svg {
+  color: #f97316;
+  text-shadow: 0 0 16px rgba(249, 115, 22, 0.9);
+}
+
+/* 조회수 / 업로드 날짜 등의 통계 */
+.video-meta-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.76rem;
+  color: #9ca3af;
+}
+
+/* =========================
+   페이지네이션
+   ========================= */
+
+.video-pagination {
+  margin-top: 1.6rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.video-page-btn {
+  min-width: 2.1rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  background: rgba(15, 23, 42, 0.96);
+  color: #9ca3af;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s ease-out;
+}
+
+.video-page-btn:hover:not(:disabled) {
+  border-color: rgba(129, 140, 248, 0.9);
+  color: #e5e7eb;
+}
+
+.video-page-btn--active {
+  border-color: rgba(168, 85, 247, 0.95);
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
+          rgba(15, 23, 42, 0.98);
+  color: #e5e7eb;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.9);
+}
+
+.video-page-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* =========================
+   모달 (영상 상세 보기)
+   ========================= */
+
+/* =========================
+   갤러리용 영상 상세 모달
+   ========================= */
+
+.gallery-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background:
+          radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.22), transparent 55%),
+          rgba(15, 23, 42, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  backdrop-filter: blur(12px);
+}
+
+
+
+.gallery-modal {
+  width: min(1100px, 96vw);
+  max-height: calc(100vh - 3rem);   /* 🔹 어떤 모니터든 화면 안에 들어오도록 */
+  border-radius: 24px;
+  padding: 1.6rem 1.8rem 1.4rem;
+  background:
+          radial-gradient(circle at 0% 0%, rgba(129, 140, 248, 0.2), transparent 60%),
+          linear-gradient(145deg, rgba(15, 23, 42, 0.99), rgba(15, 23, 42, 0.96));
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.98);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;               /* 모서리 안쪽으로 내용 잘리게 */
+}
+
+.gallery-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
+
+.gallery-modal-eyebrow {
+  margin: 0 0 0.15rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #38bdf8;
+}
+
+.gallery-modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.gallery-modal-close {
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0.15rem;
+  border-radius: 999px;
+  transition: background 0.15s ease-out, color 0.15s ease-out;
+}
+
+.gallery-modal-close:hover {
+  background: rgba(31, 41, 55, 0.95);
+  color: #e5e7eb;
+}
+
+/* 본문: 왼쪽은 영상, 오른쪽은 정보 */
+.gallery-modal-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.2fr);
+  gap: 1.4rem;
+  min-height: 0;
+}
+
+/* 영상 영역 */
+.gallery-modal-player-wrap {
+  border-radius: 18px;
+  overflow: hidden;
+  background: radial-gradient(circle at 0 0, #020617, #0b1120);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+}
+
+.gallery-modal-player {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  max-height: min(52vh, 520px);   /* 🔹 모니터가 아무리 커도 52vh를 넘지 않음 */
+  display: block;
+  object-fit: contain;
+}
+
+/* 오른쪽 정보 영역 */
+.gallery-modal-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.86rem;
+  color: #e5e7eb;
+}
+
+.gallery-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.gallery-modal-label {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.gallery-modal-text {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.gallery-modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.gallery-modal-tag {
+  padding: 0.16rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  background: rgba(30, 64, 175, 0.7);
+  color: #e5e7eb;
+}
+
+/* 작은 화면에서는 위/아래로 쌓이게 */
+@media (max-width: 900px) {
+  .gallery-modal {
+    width: 96vw;
+    max-height: calc(100vh - 2rem);
+    padding: 1.4rem 1.2rem 1.2rem;
+  }
+
+  .gallery-modal-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gallery-modal-player {
+    max-height: 44vh;
+  }
+}
+
+
+@keyframes pw-modal-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================
+   반응형
+   ========================= */
+
 @media (max-width: 900px) {
   .video-page {
     padding-top: 2.2rem;
@@ -191,7 +627,21 @@
   }
 
   .video-search-btn {
-    padding: 0.45rem 1rem;   /* ⬅ 세로 크기 줄이기 */
-    font-size: 0.85rem;      /* (원하면 글자도 살짝 줄이기) */
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .video-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .video-modal-inner {
+    width: calc(100% - 2rem);
+    max-height: calc(100vh - 1.6rem);
+  }
+
+  .video-modal-player video {
+    height: auto;
+    max-height: 45vh;  /* 모바일은 조금 더 줄임 */
   }
 }

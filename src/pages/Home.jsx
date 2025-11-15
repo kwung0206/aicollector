@@ -1,7 +1,18 @@
 // src/pages/Home.jsx
+import { useNavigate } from "react-router-dom";
 import Story from "../components/home/Story.jsx";
 
 const Home = () => {
+    const navigate = useNavigate();
+
+    const goVideos = () => {
+        navigate("/videos");
+    };
+
+    const goUpload = () => {
+        navigate("/videos/upload");
+    };
+
     return (
         <>
             {/* 기존 히어로 섹션 */}
@@ -21,8 +32,23 @@ const Home = () => {
                     </p>
 
                     <div className="hero-actions">
-                        <button className="btn btn-primary">지금 영상 보러가기</button>
-                        <button className="btn btn-ghost">내 컬렉션 만들기</button>
+                        {/* ✅ 영상 모음 페이지로 이동 */}
+                        <button
+                            type="button"
+                            className="btn btn-primary"
+                            onClick={goVideos}
+                        >
+                            지금 영상 보러가기
+                        </button>
+
+                        {/* ✅ 업로드 페이지로 이동 */}
+                        <button
+                            type="button"
+                            className="btn btn-ghost"
+                            onClick={goUpload}
+                        >
+                            지금 업로드하기
+                        </button>
                     </div>
 
                     <div className="hero-stats">
@@ -33,8 +59,8 @@ const Home = () => {
                         <div className="stat">
                             <span className="stat-value">12</span>
                             <span className="stat-label">
-                카테고리(LLM · RAG · 보안 등)
-              </span>
+                                카테고리(LLM · RAG · 보안 등)
+                            </span>
                         </div>
                         <div className="stat">
                             <span className="stat-value">Soon</span>
@@ -79,9 +105,9 @@ const Home = () => {
                                 <span />
                             </div>
                             <span className="glass-footer-text">
-                실제 서비스에서는 시청 기록과 태그를 기반으로 실시간 추천이
-                들어옵니다.
-              </span>
+                                실제 서비스에서는 시청 기록과 태그를 기반으로 실시간 추천이
+                                들어옵니다.
+                            </span>
                         </div>
                     </div>
                 </section>

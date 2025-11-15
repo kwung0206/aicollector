@@ -1,225 +1,588 @@
-/* =========================
-   Video Upload Page
-   ========================= */
+/* src/scss/VideoUpload.scss */
 
 .video-upload-page {
   position: relative;
   z-index: 1;
   width: 100%;
-  padding: 3rem 1.8rem 4rem;
-  font-family: "Noto Sans KR", sans-serif;
-}
-
-.video-upload-inner {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 3rem 2.5rem 4rem;
+  font-family: "Noto Sans KR", sans-serif;
+
+  animation: vu-page-in 0.55s ease-out;
 }
 
-/* 상단 헤더 */
-.video-upload-header {
-  margin-bottom: 1.8rem;
+@keyframes vu-page-in {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-.video-upload-eyebrow {
-  font-size: 0.78rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent-cyan);
-  margin: 0 0 0.4rem;
-}
 
-.video-upload-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.8rem;
-  font-weight: 800;
+.vu-title {
+  margin: 0 0 1.6rem;
+  font-size: 1.7rem;
+  font-weight: 700;
   color: #f9fafb;
-}
-
-.video-upload-title span {
-  background-image: linear-gradient(135deg, #38bdf8, #a855f7, #f97316);
-  -webkit-background-clip: text;
-  color: transparent;
-}
-
-.video-upload-desc {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  line-height: 1.7;
+  text-align: left;
 }
 
 /* 메인 카드 */
-.video-upload-card {
-  margin-top: 1.4rem;
+.vu-card {
+  width: 100%;
   border-radius: 24px;
-  padding: 1.7rem 1.8rem 1.6rem;
+  padding: 2.3rem 2.6rem;
   background:
-          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 60%),
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
           linear-gradient(
                           145deg,
                           rgba(15, 23, 42, 0.98),
                           rgba(15, 23, 42, 0.94),
                           rgba(15, 23, 42, 0.98)
           );
-  border: 1px solid rgba(148, 163, 184, 0.32);
-  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(20px);
-  display: flex;
-  flex-direction: column;
-  gap: 1.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(22px);
+
+  display: grid;
+  grid-template-columns: minmax(0, 2.1fr) minmax(260px, 1.4fr);
+  gap: 2.4rem;
 }
 
-/* 공통 섹션 래퍼 */
-.video-upload-section {
+/* 왼쪽: 입력 폼 */
+.vu-form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.3rem;
 }
 
-.video-upload-section-header {
+.vu-section-title {
+  margin-bottom: 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+/* 필드 공통 */
+.vu-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.vu-field + .vu-field {
+  margin-top: 1.3rem;
+}
+
+.vu-field--title {
+  gap: 0.8rem;   /* 원래 0.35rem 이었으니까 꽤 여유가 생김 */
+}
+.vu-label-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #e5e7eb;
+  }
+
+  .vu-label-badge {
+    font-size: 0.7rem;
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.16);
+    color: #93c5fd;
+    border: 1px solid rgba(37, 99, 235, 0.5);
+  }
+}
+
+
+.vu-hint {
+  margin: 0.25rem 0 0.7rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+/* 텍스트 인풋/텍스트에어리어 공통 */
+.vu-input,
+.vu-textarea {
+  border-radius: 10px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  background: rgba(15, 23, 42, 0.96);
+  padding: 0.55rem 0.8rem;
+  color: #f9fafb;
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out, background 0.15s ease-out;
+
+  &::placeholder {
+    color: #6b7280;
+    font-size: 0.85rem;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+    background: rgba(15, 23, 42, 0.98);
+  }
+}
+
+.vu-textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+/* 태그 영역 */
+.vu-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.vu-tag-input {
+  flex: 1;
+  min-width: 140px;
+}
+
+.vu-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.96);
+  border: 1px solid rgba(75, 85, 99, 0.9);
+  font-size: 0.78rem;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: all 0.15s ease-out;
+}
+
+.vu-tag-chip:hover {
+  border-color: #38bdf8;
+  background: rgba(15, 23, 42, 0.98);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+}
+
+.vu-tag-chip--active {
+  border-color: #6366f1;
+  background: radial-gradient(
+                  circle at 50% 0,
+                  rgba(79, 70, 229, 0.5),
+                  rgba(15, 23, 42, 0.98)
+  );
+  box-shadow:
+          0 0 0 1px rgba(79, 70, 229, 0.6),
+          0 14px 34px rgba(15, 23, 42, 0.96);
+  color: #e5e7eb;
+}
+/* 오른쪽: 파일 업로드/프리뷰 카드 */
+.vu-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.vu-file-drop {
+  position: relative;
+  border-radius: 18px;
+  padding: 1.9rem 1.4rem;
+  border: 1px dashed rgba(148, 163, 184, 0.7);
+  background:
+          radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.18), transparent 55%),
+          rgba(15, 23, 42, 0.96);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.17s ease-out, background 0.17s ease-out, box-shadow 0.17s ease-out;
+
+  &:hover {
+    border-color: #38bdf8;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+    background:
+            radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.24), transparent 55%),
+            rgba(15, 23, 42, 0.98);
+  }
+
+  &.vu-file-drop--dragover {
+    border-style: solid;
+    border-color: #38bdf8;
+    box-shadow:
+            0 0 0 1px rgba(56, 189, 248, 0.6),
+            0 20px 48px rgba(15, 23, 42, 0.98);
+  }
+}
+
+.vu-file-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  border: 1px solid rgba(96, 165, 250, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 0, rgba(56, 189, 248, 0.4), transparent 60%);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.9);
+  font-size: 1.9rem;
+  color: #bfdbfe;
+}
+
+.vu-file-title {
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.vu-file-sub {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.vu-file-meta {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+/* 숨겨진 실제 input[type=file] */
+.vu-file-input {
+  display: none;
+}
+
+/* 선택된 파일 정보 박스 */
+.vu-file-selected {
+  margin-top: 0.9rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  font-size: 0.8rem;
+  color: #e5e7eb;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+
+  .vu-file-selected-name {
+    font-weight: 600;
+    word-break: break-all;
+  }
+
+  .vu-file-selected-size {
+    color: #9ca3af;
+  }
 }
 
-.video-upload-section-title {
+/* 미리보기 영역 (선택 사항) */
+.vu-preview-box {
+  margin-top: 0.7rem;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  background: #020617;
+}
+
+/* 제출 버튼 줄 */
+.vu-actions {
+  margin-top: 1.8rem;
+  display: flex;
+  justify-content: flex-end;  /* 🔹 flex-end → flex-start */
+}
+
+.vu-submit-btn {
+  border-radius: 999px;
+  padding: 0.7rem 1.7rem;
+  border: none;
   font-size: 0.9rem;
   font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #38bdf8, #6366f1, #a855f7);
+  color: #0b1120;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.95);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: transform 0.12s ease-out, filter 0.12s ease-out, box-shadow 0.12s ease-out;
+
+  &:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 18px 46px rgba(15, 23, 42, 0.98);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.96);
+  }
+
+  &.vu-submit-btn--disabled {
+    opacity: 0.6;
+    cursor: default;
+    box-shadow: none;
+  }
+}
+
+.vu-error-inline {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: #f97373;
+}
+/* 오류/정보 메시지 */
+.vu-error {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: #f97373;
+}
+
+.vu-info {
+  margin-top: 0.3rem;
+  font-size: 0.78rem;
+  color: #38bdf8;
+}
+
+/* 🔸 태그 선택 정보 텍스트 */
+.vu-info--tag {
+  margin-top: 0.4rem;
+}
+
+/* 5/5일 때 살짝 강조하고 흔들기 */
+.vu-info--max {
+  font-weight: 600;
+}
+
+/* 흔들림 애니메이션 */
+.vu-info--shake {
+  animation: vu-shake 0.32s ease-in-out;
+}
+
+@keyframes vu-shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-3px);
+  }
+  40% {
+    transform: translateX(3px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+/* =========================
+   업로드 중 오버레이
+   ========================= */
+
+.vu-upload-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background:
+          radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.22), transparent 55%),
+          rgba(15, 23, 42, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  animation: vu-backdrop-fade 0.2s ease-out forwards;
+}
+
+@keyframes vu-backdrop-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.vu-upload-box {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 22px;
+  padding: 1.8rem 1.6rem 1.6rem;
+  background:
+          radial-gradient(circle at 0% 0%, rgba(129, 140, 248, 0.22), transparent 60%),
+          linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.95);
+  text-align: center;
+}
+
+.vu-spinner {
+  width: 46px;
+  height: 46px;
+  margin: 0 auto 1rem;
+  border-radius: 999px;
+  border: 3px solid rgba(55, 65, 81, 0.9);
+  border-top-color: #38bdf8;
+  border-right-color: #6366f1;
+  animation: vu-spin 0.8s linear infinite;
+}
+
+@keyframes vu-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vu-upload-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.vu-upload-desc {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #9ca3af;
+}
+
+/* =========================
+   업로드 완료 모달
+   ========================= */
+
+.vu-result-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background:
+          radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.18), transparent 55%),
+          rgba(15, 23, 42, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  animation: vu-backdrop-fade 0.2s ease-out forwards;
+}
+
+.vu-result-modal {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 22px;
+  padding: 1.9rem 1.7rem 1.5rem;
+  background:
+          radial-gradient(circle at 0% 0%, rgba(52, 211, 153, 0.28), transparent 60%),
+          linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+  border: 1px solid rgba(74, 222, 128, 0.55);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.95);
+  text-align: center;
+  transform-origin: center;
+  animation: vu-modal-pop 0.22s ease-out forwards;
+}
+
+@keyframes vu-modal-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.vu-result-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 0.9rem;
+  border-radius: 999px;
+  background: rgba(22, 163, 74, 0.18);
+  border: 1px solid rgba(22, 163, 74, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4ade80;
+  font-size: 1.6rem;
+}
+
+.vu-result-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #f9fafb;
+}
+
+.vu-result-desc {
+  margin: 0 0 1.2rem;
+  font-size: 0.86rem;
   color: #e5e7eb;
 }
 
-.video-upload-section-hint {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-/* 태그 영역: VideoGallery.scss와 동일 컨셉 */
-.video-tag-row {
+.vu-result-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.video-tag-pill {
-  border-radius: 999px;
-  border: 1px solid rgba(55, 65, 81, 0.9);
-  background: rgba(15, 23, 42, 0.96);
-  padding: 0.26rem 0.9rem;
-  font-size: 0.8rem;
-  color: #9ca3af;
-  cursor: pointer;
-  transition: all 0.18s ease-out;
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
 }
 
-.video-tag-pill:hover {
-  border-color: rgba(129, 140, 248, 0.9);
-  color: #e5e7eb;
-}
-
-.video-tag-pill--active {
-  border-color: rgba(168, 85, 247, 0.95);
-  background:
-          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
-          radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.24), transparent 60%),
-          rgba(15, 23, 42, 0.98);
-  color: #e5e7eb;
-  box-shadow:
-          0 0 0 1px rgba(129, 140, 248, 0.5),
-          0 12px 32px rgba(15, 23, 42, 0.9);
-}
-
-/* 파일 선택 행 */
-.video-upload-file-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.video-upload-file-btn {
-  white-space: nowrap;
-}
-
-.video-upload-file-info {
-  flex: 1;
-  min-width: 200px;
-}
-
-.video-upload-file-name {
-  margin: 0;
-  font-size: 0.86rem;
-  color: #e5e7eb;
-}
-
-.video-upload-file-hint {
-  margin: 0.15rem 0 0;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-/* 하단 액션 버튼 */
-.video-upload-actions {
-  margin-top: 0.4rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.video-upload-actions .btn[disabled] {
-  opacity: 0.5;
-  cursor: default;
-}
-
-/* 반응형 */
-@media (max-width: 900px) {
-  .video-upload-page {
-    padding-top: 2.2rem;
-  }
-
-  .video-upload-card {
-    padding: 1.4rem 1.3rem 1.4rem;
-  }
-
-  .video-upload-file-row {
-    align-items: flex-start;
-  }
-
-  .video-upload-actions {
-    justify-content: center;
-  }
-}
-.video-upload-preview {
-  margin-top: 1rem;
-  border-radius: 16px;
-  padding: 0.9rem 1rem 1rem;
-  background:
-          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.14), transparent 55%),
-          linear-gradient(
-                          145deg,
-                          rgba(15, 23, 42, 0.98),
-                          rgba(15, 23, 42, 0.96),
-                          rgba(15, 23, 42, 0.98)
-          );
-  border: 1px solid rgba(148, 163, 184, 0.32);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
-}
-
-.video-upload-preview-title {
-  margin: 0;
-  font-size: 0.86rem;
+.vu-result-btn {
+  min-width: 140px;
+  border-radius: 999px;
+  border: none;
+  padding: 0.65rem 1.7rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: #e5e7eb;
+  cursor: pointer;
+  background: linear-gradient(135deg, #38bdf8, #6366f1, #a855f7);
+  color: #0b1120;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.95);
+  transition: transform 0.12s ease-out, filter 0.12s ease-out, box-shadow 0.12s ease-out;
+
+  &:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 18px 46px rgba(15, 23, 42, 0.98);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.96);
+  }
 }
 
-.video-upload-preview-player {
-  margin-top: 0.6rem;
+/* =========================
+   반응형
+   ========================= */
+
+@media (max-width: 960px) {
+  .video-upload-page {
+    padding: 2.3rem 1.4rem 3rem;
+  }
+
+  .vu-card {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 1.9rem 1.6rem;
+  }
+
+  .vu-side {
+    margin-top: 0.3rem;
+  }
 }
 
-.video-upload-preview-player video {
-  width: 100%;
-  max-height: 360px;
-  border-radius: 12px;
-  background: #000;  /* 로딩 전에도 까만 배경 */
+@media (max-width: 600px) {
+  .video-upload-page {
+    padding-inline: 1rem;
+  }
+
+  .vu-card {
+    padding: 1.7rem 1.3rem;
+  }
+
+  .vu-title {
+    font-size: 1.5rem;
+  }
 }

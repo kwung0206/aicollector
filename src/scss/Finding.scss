@@ -1,0 +1,569 @@
+/* src/scss/Finding.scss */
+
+.finding {
+  position: relative;
+  padding: 2.4rem 1.5rem 3rem;
+  z-index: 1;
+
+  /* 🔹 메인 영역 안에서 세로 중앙 정렬 */
+  flex: 1;
+  display: flex;
+  align-items: center;
+
+  &-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr);
+    gap: 2.3rem;
+    align-items: flex-start;
+  }
+}
+
+/* 왼쪽 영역 */
+.finding-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.finding-eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+}
+
+.finding-title {
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1.35;
+  color: #f9fafb;
+
+  span {
+    background-image: linear-gradient(135deg, #38bdf8, #a855f7, #f97316);
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+}
+
+.finding-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* 프롬프트 카드 */
+.finding-prompt-card {
+  margin-top: 0.4rem;
+  border-radius: 22px;
+  padding: 1.3rem 1.2rem 1.1rem;
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.16), transparent 55%),
+          linear-gradient(
+                          145deg,
+                          rgba(15, 23, 42, 0.98),
+                          rgba(15, 23, 42, 0.94),
+                          rgba(15, 23, 42, 0.98)
+          );
+  border: 1px solid rgba(129, 140, 248, 0.85);
+  box-shadow: 0 20px 55px rgba(15, 23, 42, 0.95);
+  position: relative;
+  overflow: hidden;
+  animation: vu-page-in 0.55s ease-out;
+}
+
+.finding-prompt-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  pointer-events: none;
+}
+
+.finding-prompt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+
+.finding-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.9);
+
+  &--ai {
+    border-color: rgba(129, 140, 248, 0.9);
+    color: #c7d2fe;
+  }
+
+  svg {
+    font-size: 0.78rem;
+  }
+}
+
+.finding-example {
+  font-size: 0.76rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 텍스트 입력 */
+.finding-prompt-body {
+  margin-bottom: 0.6rem;
+}
+
+.finding-prompt-input {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  border-radius: 12px;
+  border: 1px solid rgba(55, 65, 81, 0.95);
+  background: rgba(15, 23, 42, 0.98);
+  padding: 0.7rem 0.8rem;
+  color: #f9fafb;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont,
+  "Segoe UI", sans-serif;
+}
+
+.finding-prompt-input::placeholder {
+  color: #6b7280;
+}
+
+.finding-prompt-input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+}
+
+/* footer */
+.finding-prompt-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.finding-prompt-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  min-height: 1.2rem;
+}
+
+.finding-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
+  animation: findingPulse 1.1s infinite ease-in-out;
+}
+
+@keyframes findingPulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+.finding-prompt-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.finding-char-count {
+  font-size: 0.76rem;
+  color: #9ca3af;
+}
+
+.finding-search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  svg {
+    font-size: 0.82rem;
+  }
+}
+
+/* 오른쪽 영역 */
+.finding-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.finding-results {
+  border-radius: 20px;
+  padding: 1.1rem 1.0rem 1rem;
+  background:
+          radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.18), transparent 60%),
+          linear-gradient(
+                          145deg,
+                          rgba(15, 23, 42, 0.98),
+                          rgba(15, 23, 42, 0.95),
+                          rgba(15, 23, 42, 0.98)
+          );
+  border: 1px solid rgba(30, 64, 175, 0.85);
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  max-height: 520px;
+}
+
+.finding-results-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.finding-results-info {
+  min-width: 0;
+}
+
+.finding-results-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.finding-results-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.finding-sortbar {
+  display: flex;
+  flex-wrap: nowrap;          /* 🔹 한 줄로 유지 */
+  gap: 0.4rem;
+  justify-content: flex-end;
+  overflow-x: auto;           /* 혹시 좁으면 가로 스크롤 */
+  padding-bottom: 0.1rem;
+}
+
+.finding-sort-pill {
+  border-radius: 999px;
+  border: 1px solid rgba(55, 65, 81, 0.95);
+  background: rgba(15, 23, 42, 0.95);
+  padding: 0.22rem 0.6rem;    /* 🔹 살짝 슬림하게 */
+  font-size: 0.75rem;         /* 🔹 글씨도 조금 줄이기 */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #9ca3af;
+  cursor: pointer;
+  transition:
+          background 0.16s ease-out,
+          color 0.16s ease-out,
+          border-color 0.16s ease-out,
+          transform 0.16s ease-out;
+}
+
+.finding-sort-pill svg {
+  font-size: 0.78rem;
+}
+
+.finding-sort-pill:hover {
+  border-color: rgba(129, 140, 248, 0.9);
+  color: #e5e7eb;
+}
+
+.finding-sort-pill.is-active {
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.16), transparent 55%),
+          linear-gradient(135deg, #38bdf8, #6366f1, #a855f7);
+  color: #0b1120;
+  border-color: transparent;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.8);
+  transform: translateY(-1px);
+}
+
+/* 결과 스크롤 영역 */
+.finding-results-scroll {
+  margin-top: 0.5rem;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  overflow-y: auto;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(129, 140, 248, 0.8) rgba(15, 23, 42, 1);
+}
+
+.finding-results-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.finding-results-scroll::-webkit-scrollbar-track {
+  background: radial-gradient(circle at 0 0, rgba(79, 70, 229, 0.2), transparent);
+  border-radius: 999px;
+}
+
+.finding-results-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(180deg, #6366f1, #ec4899);
+}
+
+/* 비디오 카드 */
+.finding-video-card {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.55rem;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(31, 41, 55, 0.95);
+  transition:
+          transform 0.16s ease-out,
+          box-shadow 0.16s ease-out,
+          border-color 0.16s ease-out,
+          background 0.16s ease-out;
+  cursor: pointer;
+
+  animation: vu-page-in 0.55s ease-out;
+}
+
+.finding-video-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(129, 140, 248, 0.9);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 60%),
+          rgba(15, 23, 42, 0.97);
+}
+
+/* 썸네일 */
+.finding-thumb {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background:
+          radial-gradient(circle at 20% 0, rgba(56, 189, 248, 0.5), transparent 60%),
+          radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.6), transparent 60%),
+          #020617;
+  border: 1px solid rgba(30, 64, 175, 0.8);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.9);
+}
+
+.finding-thumb::before {
+  content: "";
+  display: block;
+  padding-top: 60%; /* 16:9 비율 비슷하게 */
+}
+
+.finding-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(248, 250, 252, 0.9);
+  font-size: 1.4rem;
+  text-shadow: 0 0 14px rgba(59, 130, 246, 0.9);
+}
+
+.finding-thumb-duration {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 0.14rem 0.35rem;
+  font-size: 0.7rem;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+}
+
+/* 카드 내부 텍스트 */
+.finding-video-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.finding-video-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.finding-video-desc {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.finding-video-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.finding-video-stats {
+  margin-top: 0.1rem;
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  color: #cbd5f5;
+
+  svg {
+    font-size: 0.75rem;
+    margin-right: 0.18rem;
+  }
+}
+
+.finding-video-tags {
+  margin-top: 0.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.finding-tag {
+  font-size: 0.72rem;
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  color: #cbd5f5;
+}
+
+/* 로딩 스켈레톤 */
+.finding-video-card--skeleton {
+  cursor: default;
+  animation: findingSkeleton 1.3s infinite ease-in-out;
+}
+
+@keyframes findingSkeleton {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+.finding-thumb-skeleton {
+  border-radius: 12px;
+  background: linear-gradient(
+                  120deg,
+                  #111827,
+                  #1f2937,
+                  #111827
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.finding-thumb-skeleton::before {
+  content: "";
+  display: block;
+  padding-top: 60%;
+}
+
+.finding-line-skeleton {
+  border-radius: 999px;
+  height: 8px;
+  background: linear-gradient(
+                  120deg,
+                  #111827,
+                  #1f2937,
+                  #111827
+  );
+  margin-top: 0.25rem;
+}
+
+.finding-line-skeleton--lg {
+  width: 80%;
+}
+.finding-line-skeleton--md {
+  width: 60%;
+}
+.finding-line-skeleton--sm {
+  width: 40%;
+}
+
+/* 결과 없음 */
+.finding-empty {
+  margin-top: 0.4rem;
+  padding: 1.4rem 0.6rem;
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+
+  p {
+    margin: 0.1rem 0;
+  }
+}
+@keyframes vu-page-in {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+/* 반응형 */
+@media (max-width: 900px) {
+  .finding {
+    padding-inline: 1.25rem;
+    padding-top: 2.2rem;
+    padding-bottom: 2.8rem;
+    align-items: flex-start;      /* 🔹 모바일에선 위쪽 정렬 */
+  }
+
+  .finding-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .finding-results {
+    max-height: none;
+  }
+
+  .finding-video-card {
+    grid-template-columns: 130px minmax(0, 1fr);
+  }
+
+  .finding-sortbar {
+    justify-content: flex-start;
+    flex-wrap: wrap;              /* 🔹 모바일에서는 다시 줄바꿈 허용 */
+    overflow-x: visible;
+  }
+}
+

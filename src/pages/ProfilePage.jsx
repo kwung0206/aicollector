@@ -8,6 +8,10 @@ import {
     checkNickname,
     updateProfileImage,
 } from "../api/auth";
+import { getMyVideos, updateVideoMeta, deleteVideo } from "../api/video";
+
+const API_ROOT =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:9999/api";
 
 // 아바타 매핑 (회원가입/헤더에서 쓰는 거랑 동일하게)
 const AVATAR_MAP = {
@@ -36,6 +40,33 @@ const resolveAvatarSrc = (profileImage) => {
     const key = profileImage.trim();
     if (AVATAR_MAP[key]) return AVATAR_MAP[key];
     return key; // 그냥 URL 이면 그대로 사용
+};
+
+// 업로드 날짜 포맷터
+const formatDateTime = (iso) => {
+    if (!iso) return "-";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "-";
+    const pad = (v) => String(v).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+        d.getDate()
+    )} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+// 리뷰 상태 + 차단 여부 → 뱃지 텍스트 & 스타일 타입
+const getVideoStatus = (reviewStatus, isBlocked) => {
+    if (isBlocked === "Y") {
+        return { label: "차단됨 (유해 영상)", variant: "blocked" };
+    }
+    switch (reviewStatus) {
+        case "A":
+            return { label: "승인됨", variant: "approved" };
+        case "H":
+            return { label: "보류 중", variant: "hold" };
+        case "P":
+        default:
+            return { label: "심사 대기", variant: "pending" };
+    }
 };
 
 /** 프로필 이미지 변경 모달 */
@@ -97,7 +128,8 @@ const AvatarSelectModal = ({
                             key={opt.id}
                             type="button"
                             className={
-                                "avatar-option" + (selected === opt.id ? " avatar-option--active" : "")
+                                "avatar-option" +
+                                (selected === opt.id ? " avatar-option--active" : "")
                             }
                             onClick={() => setSelected(opt.id)}
                         >
@@ -190,7 +222,6 @@ const PasswordChangeModal = ({ open, onClose }) => {
                 newPassword: newPassword.trim(),
             });
             setSuccessMsg("비밀번호가 성공적으로 변경되었습니다.");
-            // 살짝 딜레이 후 모달 닫기
             setTimeout(() => {
                 onClose();
             }, 800);
@@ -269,6 +300,212 @@ const PasswordChangeModal = ({ open, onClose }) => {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    );
+};
+
+/** 영상 상세 모달 (제목 수정 + 삭제, 태그는 읽기 전용) */
+const VideoDetailModal = ({ open, video, onClose, onDeleted, onUpdated }) => {
+    const [titleInput, setTitleInput] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [successMsg, setSuccessMsg] = useState("");
+
+    useEffect(() => {
+        if (open && video) {
+            setTitleInput(video.title || "");
+            setErrorMsg("");
+            setSuccessMsg("");
+        }
+    }, [open, video]);
+
+    useEffect(() => {
+        if (!open) return;
+        const onKey = (e) => {
+            if (e.key === "Escape") onClose();
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, [open, onClose]);
+
+    if (!open || !video) return null;
+
+    const handleSaveTitle = async () => {
+        const trimmed = titleInput.trim();
+        setErrorMsg("");
+        setSuccessMsg("");   // ✅ 이전 메시지 초기화
+
+        if (!trimmed) {
+            setErrorMsg("제목을 입력해 주세요.");
+            return;
+        }
+        if (trimmed === video.title) {
+            setSuccessMsg("변경된 내용이 없습니다.");
+            return;
+        }
+
+        try {
+            setSaving(true);
+            const updated = await updateVideoMeta(video.videoNo, { title: trimmed });
+
+            // ✅ 여기 문구 변경
+            setSuccessMsg("제목이 저장되었습니다.");
+
+            if (onUpdated) {
+                onUpdated(updated || { ...video, title: trimmed });
+            }
+        } catch (err) {
+            console.error("제목 변경 실패:", err);
+            const msg =
+                err?.response?.data?.message ||
+                err?.response?.data?.error ||
+                "제목 변경 중 오류가 발생했습니다.";
+            setErrorMsg(msg);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (
+            !window.confirm(
+                "정말 이 영상을 삭제하시겠습니까?\n삭제 후에는 되돌릴 수 없습니다."
+            )
+        ) {
+            return;
+        }
+
+        try {
+            setDeleting(true);
+            setErrorMsg("");
+            await deleteVideo(video.videoNo);
+            if (onDeleted) {
+                onDeleted(video.videoNo);
+            }
+            onClose();
+        } catch (err) {
+            console.error("영상 삭제 실패:", err);
+            const msg =
+                err?.response?.data?.message ||
+                err?.response?.data?.error ||
+                "영상 삭제 중 오류가 발생했습니다.";
+            setErrorMsg(msg);
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    const status = getVideoStatus(video.reviewStatus, video.isBlocked);
+    const tags = [
+        video.tag1,
+        video.tag2,
+        video.tag3,
+        video.tag4,
+        video.tag5,
+    ].filter(Boolean);
+
+    const videoSrc = `${API_ROOT}/videos/${video.videoNo}/stream`;
+
+    return (
+        <div className="video-modal-backdrop" onClick={onClose}>
+            <div className="video-modal" onClick={(e) => e.stopPropagation()}>
+                <header className="video-modal-header">
+                    <span
+                        className={`video-modal-status video-modal-status--${status.variant}`}
+                    >
+                        {status.label}
+                    </span>
+                    <button
+                        type="button"
+                        className="video-modal-close"
+                        onClick={onClose}
+                        aria-label="닫기"
+                    >
+                        ×
+                    </button>
+                </header>
+
+                <div className="video-modal-body">
+                    <div className="video-modal-player-wrap">
+                        <video
+                            className="video-modal-player"
+                            src={videoSrc}
+                            controls
+                        />
+                    </div>
+
+                    <div className="video-modal-meta">
+                        <label className="video-modal-field">
+                            <span className="video-modal-label">제목</span>
+                            <input
+                                type="text"
+                                value={titleInput}
+                                onChange={(e) => {
+                                    setTitleInput(e.target.value);
+                                    setErrorMsg("");
+                                    setSuccessMsg("");
+                                }}
+                                maxLength={255}
+                            />
+                        </label>
+
+                        {tags.length > 0 && (
+                            <div className="video-modal-tags">
+                                {tags.map((t) => (
+                                    <span key={t} className="video-modal-tag">
+                                        #{t}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        <p className="video-modal-date">
+                            업로드: {formatDateTime(video.uploadDate)}
+                        </p>
+
+                        <div className="video-modal-stats">
+                            <span>조회수 {video.viewCount ?? 0}</span>
+                            <span>좋아요 {video.likeCount ?? 0}</span>
+                            <span>싫어요 {video.dislikeCount ?? 0}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {errorMsg && <p className="video-modal-error">{errorMsg}</p>}
+                {successMsg && !errorMsg && (
+                    <p className="video-modal-success">{successMsg}</p>
+                )}
+
+                <footer className="video-modal-footer">
+                    <button
+                        type="button"
+                        className="video-modal-btn video-modal-btn--danger"
+                        onClick={handleDelete}
+                        disabled={deleting}
+                    >
+                        {deleting ? "삭제 중..." : "영상 삭제"}
+                    </button>
+                    <div className="video-modal-footer-right">
+                        <button
+                            type="button"
+                            className="video-modal-btn"
+                            onClick={onClose}
+                            disabled={saving || deleting}
+                        >
+                            닫기
+                        </button>
+                        <button
+                            type="button"
+                            className="video-modal-btn video-modal-btn--primary"
+                            onClick={handleSaveTitle}
+                            disabled={saving || deleting}
+                        >
+                            {saving ? "저장 중..." : "제목 저장"}
+                        </button>
+                    </div>
+                </footer>
             </div>
         </div>
     );
@@ -452,6 +689,9 @@ const ProfilePage = () => {
     const [pwModalOpen, setPwModalOpen] = useState(false);
     const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
+    const [videoModalOpen, setVideoModalOpen] = useState(false);
+    const [activeVideo, setActiveVideo] = useState(null);
+
     // 아바타 적용 핸들러
     const handleApplyAvatar = async (selectedId) => {
         const updated = await updateProfileImage(selectedId); // UserResponse
@@ -471,6 +711,62 @@ const ProfilePage = () => {
         }
 
         setAvatarModalOpen(false);
+    };
+
+    // ===== 내 영상 목록 상태 =====
+    const [videos, setVideos] = useState([]);
+    const [videosLoading, setVideosLoading] = useState(false);
+    const [videosError, setVideosError] = useState("");
+
+    // 내 영상 불러오기
+    useEffect(() => {
+        if (!ctxUser) return;
+
+        const fetchMyVideos = async () => {
+            try {
+                setVideosLoading(true);
+                setVideosError("");
+                const data = await getMyVideos();
+                setVideos(Array.isArray(data) ? data : []);
+            } catch (err) {
+                console.error("내 영상 목록 조회 실패:", err);
+                const msg =
+                    err?.response?.data?.message ||
+                    err?.response?.data?.error ||
+                    "내 영상 목록을 불러오는 중 오류가 발생했습니다.";
+                setVideosError(msg);
+            } finally {
+                setVideosLoading(false);
+            }
+        };
+
+        fetchMyVideos();
+    }, [ctxUser]);
+
+    const handleOpenVideoModal = (video) => {
+        setActiveVideo(video);
+        setVideoModalOpen(true);
+    };
+
+    const handleCloseVideoModal = () => {
+        setVideoModalOpen(false);
+        setActiveVideo(null);
+    };
+
+    const handleVideoUpdated = (updated) => {
+        if (!updated) return;
+        setVideos((prev) =>
+            prev.map((v) =>
+                v.videoNo === updated.videoNo ? { ...v, ...updated } : v
+            )
+        );
+        setActiveVideo((prev) =>
+            prev && prev.videoNo === updated.videoNo ? { ...prev, ...updated } : prev
+        );
+    };
+
+    const handleVideoDeleted = (deletedVideoNo) => {
+        setVideos((prev) => prev.filter((v) => v.videoNo !== deletedVideoNo));
     };
 
     return (
@@ -497,8 +793,8 @@ const ProfilePage = () => {
                         <div className="profile-token-box">
                             <span className="profile-token-label">남은 토큰</span>
                             <span className="profile-token-value">
-                {tokenCount ?? 0}
-              </span>
+                                {tokenCount ?? 0}
+                            </span>
                         </div>
                     </div>
 
@@ -517,7 +813,6 @@ const ProfilePage = () => {
                                 <dd>
                                     {editingNickname ? (
                                         <>
-                                            {/* 회원가입 페이지 스타일 재사용: 인풋 + 중복검사 + 저장/취소 */}
                                             <div className="profile-nick-edit-row nickname-input-row">
                                                 <input
                                                     type="text"
@@ -538,7 +833,8 @@ const ProfilePage = () => {
                                                     className="nickname-check-link"
                                                     onClick={handleCheckNicknameProfile}
                                                     disabled={
-                                                        nickLoading || nickCheckStatus === "checking"
+                                                        nickLoading ||
+                                                        nickCheckStatus === "checking"
                                                     }
                                                 >
                                                     {nickCheckStatus === "checking"
@@ -564,7 +860,6 @@ const ProfilePage = () => {
                                                 </button>
                                             </div>
 
-                                            {/* 중복검사 메시지 */}
                                             {nickCheckMessage && (
                                                 <p
                                                     className={`nickname-status nickname-status--${nickCheckStatus}`}
@@ -573,7 +868,6 @@ const ProfilePage = () => {
                                                 </p>
                                             )}
 
-                                            {/* 에러/성공 메시지 */}
                                             {nickError && (
                                                 <p className="profile-nick-error">{nickError}</p>
                                             )}
@@ -585,9 +879,9 @@ const ProfilePage = () => {
                                         </>
                                     ) : (
                                         <div className="profile-nick-row">
-                      <span className="profile-nick-text">
-                        {nickname || "-"}
-                      </span>
+                                            <span className="profile-nick-text">
+                                                {nickname || "-"}
+                                            </span>
                                             <button
                                                 type="button"
                                                 className="profile-nick-edit-link"
@@ -624,6 +918,106 @@ const ProfilePage = () => {
                         </dl>
                     </div>
                 </div>
+
+                {/* ===== 내 영상 섹션 ===== */}
+                <section className="profile-video-section">
+                    <h3 className="profile-video-title">내가 올린 영상</h3>
+
+                    <div className="profile-video-card-wrap">
+                        {videosLoading && (
+                            <div className="profile-video-loading">
+                                <div className="profile-spinner" />
+                                <span>내 영상을 불러오는 중입니다...</span>
+                            </div>
+                        )}
+
+                        {!videosLoading && videosError && (
+                            <p className="profile-video-error">{videosError}</p>
+                        )}
+
+                        {!videosLoading && !videosError && videos.length === 0 && (
+                            <p className="profile-video-empty">
+                                아직 업로드한 영상이 없습니다. 첫 영상을 업로드해 보세요!
+                            </p>
+                        )}
+
+                        {!videosLoading && !videosError && videos.length > 0 && (
+                            <div className="profile-video-scroll">
+                                <div className="profile-video-grid">
+                                    {videos.map((v) => {
+                                        const status = getVideoStatus(
+                                            v.reviewStatus,
+                                            v.isBlocked
+                                        );
+                                        const tags = [
+                                            v.tag1,
+                                            v.tag2,
+                                            v.tag3,
+                                            v.tag4,
+                                            v.tag5,
+                                        ].filter(Boolean);
+
+                                        return (
+                                            <article
+                                                key={v.videoNo}
+                                                className="profile-video-card"
+                                                onClick={() => handleOpenVideoModal(v)}
+                                            >
+                                                <div className="profile-video-thumb-wrap">
+                                                    {v.thumbnailUrl ? (
+                                                        <img
+                                                            src={v.thumbnailUrl}
+                                                            alt={v.title}
+                                                            className="profile-video-thumb-img"
+                                                        />
+                                                    ) : (
+                                                        <div className="profile-video-thumb-placeholder">
+                                                            <span>▶</span>
+                                                        </div>
+                                                    )}
+
+                                                    <span
+                                                        className={`profile-video-status profile-video-status--${status.variant}`}
+                                                    >
+                                                        {status.label}
+                                                    </span>
+                                                </div>
+
+                                                <div className="profile-video-body">
+                                                    <h4 className="profile-video-title-text">
+                                                        {v.title}
+                                                    </h4>
+                                                    <p className="profile-video-date">
+                                                        업로드: {formatDateTime(v.uploadDate)}
+                                                    </p>
+
+                                                    {tags.length > 0 && (
+                                                        <div className="profile-video-tags">
+                                                            {tags.map((t) => (
+                                                                <span
+                                                                    key={t}
+                                                                    className="profile-video-tag"
+                                                                >
+                                                                    #{t}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="profile-video-meta">
+                                                        <span>조회수 {v.viewCount ?? 0}</span>
+                                                        <span>좋아요 {v.likeCount ?? 0}</span>
+                                                        <span>싫어요 {v.dislikeCount ?? 0}</span>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </section>
             </section>
 
             {/* 비밀번호 변경 모달 */}
@@ -638,6 +1032,15 @@ const ProfilePage = () => {
                 currentProfileImage={profileImage}
                 onClose={() => setAvatarModalOpen(false)}
                 onApply={handleApplyAvatar}
+            />
+
+            {/* 영상 상세 모달 */}
+            <VideoDetailModal
+                open={videoModalOpen}
+                video={activeVideo}
+                onClose={handleCloseVideoModal}
+                onDeleted={handleVideoDeleted}
+                onUpdated={handleVideoUpdated}
             />
         </>
     );

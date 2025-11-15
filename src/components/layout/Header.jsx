@@ -85,15 +85,15 @@ const Header = () => {
                         홈
                     </NavLink>
 
-                    {/* ✅ 영상 모음: /videos 페이지로 이동 */}
-                    <NavLink to="/videos" className={homeClass}>
+                    {/* 영상 모음 */}
+                    <NavLink to="/videos" end className={homeClass}>
                         영상 모음
                     </NavLink>
 
-                    {/* 컬렉션은 나중에 구현 */}
-                    <button type="button" className="nav-link">
-                        컬렉션
-                    </button>
+                    {/* 🔍 파인딩: 프롬프트 기반 검색 페이지 */}
+                    <NavLink to="/finding" end className={homeClass}>
+                        파인딩
+                    </NavLink>
 
                     {user ? (
                         <div className="nav-profile-wrap" ref={menuRef}>
@@ -110,7 +110,6 @@ const Header = () => {
                                   />
                                 </span>
                             </button>
-
 
                             {openMenu && (
                                 <div className="nav-profile-menu">
@@ -146,7 +145,6 @@ const Header = () => {
                                     </button>
                                 </div>
                             )}
-
                         </div>
                     ) : (
                         <button

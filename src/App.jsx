@@ -6,10 +6,12 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import SignUp from "./pages/SignUp.jsx";
 import SignUpForm from "./pages/SignUpForm.jsx";
-import SignUpEmail from "./pages/SignUpEmail.jsx"
+import SignUpEmail from "./pages/SignUpEmail.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import VideoGallery from "./pages/VideoGallery";
 import VideoUpload from "./pages/VideoUpload";
+import Finding from "./pages/Finding";      // 🔹 추가
+
 function App() {
     return (
         <div className="app">
@@ -29,6 +31,7 @@ function App() {
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/videos" element={<VideoGallery />} />
                     <Route path="/videos/upload" element={<VideoUpload />} />
+                    <Route path="/finding" element={<Finding />} />
                 </Routes>
             </main>
 
