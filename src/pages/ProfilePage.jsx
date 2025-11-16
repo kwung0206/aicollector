@@ -210,10 +210,13 @@ const PasswordChangeModal = ({ open, onClose }) => {
             setErrorMsg("현재 비밀번호와 새 비밀번호를 모두 입력해 주세요.");
             return;
         }
-        if (newPassword.length < 6) {
-            setErrorMsg("새 비밀번호는 최소 6자 이상이어야 합니다.");
+
+        // 🔹 회원가입과 동일하게 8자리 이상으로 통일
+        if (newPassword.length < 8) {
+            setErrorMsg("새 비밀번호는 최소 8자 이상이어야 합니다.");
             return;
         }
+
         if (newPassword !== confirmPassword) {
             setErrorMsg("새 비밀번호와 비밀번호 확인이 일치하지 않습니다.");
             return;
@@ -1040,9 +1043,8 @@ const ProfilePage = () => {
                                                         {v.title}
                                                     </h4>
                                                     <p className="profile-video-date">
-                                                        업로드: {formatDateTime(
-                                                        v.uploadDate
-                                                    )}
+                                                        업로드:{" "}
+                                                        {formatDateTime(v.uploadDate)}
                                                     </p>
 
                                                     {tags.length > 0 && (
