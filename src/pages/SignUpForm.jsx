@@ -10,11 +10,11 @@ import {
 
 // ✅ SVG 아바타 옵션 (public/avatars/ 아래에 저장된 파일들)
 const avatarOptions = [
-    { id: "blue",   label: "블루", src: "/avatars/avatar-blue.svg" },
-    { id: "purple", label: "퍼플", src: "/avatars/avatar-purple.svg" },
+    { id: "blue",   label: "블루",   src: "/avatars/avatar-blue.svg" },
+    { id: "purple", label: "퍼플",   src: "/avatars/avatar-purple.svg" },
     { id: "orange", label: "오렌지", src: "/avatars/avatar-orange.svg" },
-    { id: "green",  label: "그린", src: "/avatars/avatar-green.svg" },
-    { id: "pink",   label: "핑크", src: "/avatars/avatar-pink.svg" },
+    { id: "green",  label: "그린",   src: "/avatars/avatar-green.svg" },
+    { id: "pink",   label: "핑크",   src: "/avatars/avatar-pink.svg" },
     { id: "mono",   label: "화이트", src: "/avatars/avatar-mono.svg" },
 ];
 
@@ -55,6 +55,9 @@ const SignUpForm = () => {
 
     // 필드별 에러 메시지
     const [fieldErrors, setFieldErrors] = useState({});
+
+    // ✅ 회원가입 완료 모달 상태
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     // 🔎 포커스 이동용 ref
     const userIdRef = useRef(null);
@@ -152,6 +155,19 @@ const SignUpForm = () => {
 
     const canSubmit = !isSubmitting;
 
+    // 🔁 로그인 페이지로 이동 (모달 닫힘/확인 공용)
+    const goToLoginAfterSignup = () => {
+        setShowSuccessModal(false);
+        navigate("/login", { replace: true });
+    };
+
+    // 백드롭(회색 배경) 클릭 시 모달 닫고 로그인으로
+    const handleSuccessBackdropClick = (e) => {
+        if (e.target.classList.contains("signup-success-backdrop")) {
+            goToLoginAfterSignup();
+        }
+    };
+
     // ✅ 실제 회원가입 API 요청
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -197,12 +213,9 @@ const SignUpForm = () => {
             if (!firstErrorEl && nicknameRef.current) firstErrorEl = nicknameRef.current;
         }
 
-        // 비밀번호 (🔴 여기 8자리 이상 조건 추가)
-        if (!password.trim()) {
-            errors.password = "비밀번호를 입력해 주세요.";
-            if (!firstErrorEl && passwordRef.current) firstErrorEl = passwordRef.current;
-        } else if (password.trim().length < 8) {
-            errors.password = "비밀번호는 최소 8자리 이상이어야 합니다.";
+        // 🔴 비밀번호: 8자리 이상
+        if (!password.trim() || password.trim().length < 8) {
+            errors.password = "비밀번호는 8자리 이상 입력해 주세요.";
             if (!firstErrorEl && passwordRef.current) firstErrorEl = passwordRef.current;
         }
 
@@ -258,8 +271,9 @@ const SignUpForm = () => {
             const data = await registerUser(payload);
             console.log("회원가입 성공:", data);
 
-            alert("회원가입이 완료되었습니다. 로그인해 주세요.");
-            navigate("/login", { replace: true });
+            // ✅ alert 대신 성공 모달 열기
+            setIsSubmitting(false);
+            setShowSuccessModal(true);
         } catch (error) {
             console.error("회원가입 실패:", error);
             const msg =
@@ -484,7 +498,7 @@ const SignUpForm = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 ref={passwordRef}
                                 autoComplete="new-password"
-                                minLength={8}        // 🔸 브라우저 기본 검증도 8자리 이상
+                                minLength={8}
                             />
                             {fieldErrors.password && (
                                 <p
@@ -592,6 +606,31 @@ const SignUpForm = () => {
                     </form>
                 </div>
             </div>
+
+            {/* ✅ 회원가입 완료 모달 */}
+            {showSuccessModal && (
+                <div
+                    className="signup-success-backdrop"
+                    onClick={handleSuccessBackdropClick}
+                >
+                    <div className="signup-success-modal">
+                        <div className="signup-success-icon">✓</div>
+                        <h3 className="signup-success-title">회원가입이 완료되었어요!</h3>
+                        <p className="signup-success-desc">
+                            이제 로그인 페이지로 이동해 AI 콜렉터를 이용해 보세요.
+                        </p>
+                        <div className="signup-success-actions">
+                            <button
+                                type="button"
+                                className="signup-success-btn"
+                                onClick={goToLoginAfterSignup}
+                            >
+                                로그인하러 가기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };
