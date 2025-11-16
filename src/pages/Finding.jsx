@@ -12,9 +12,9 @@ import { createPortal } from "react-dom";
 import { toggleVideoReaction, increaseVideoView  } from "../api/video"; // 👍/👎 API 재사용
 
 const EXAMPLE_PROMPTS = [
-    "RAG 구조를 쉽게 설명해주는 강의 추천해줘",
-    "파이토치 Transformer 구현 과정 설명해 주는 영상",
-    "자연어 처리 입문자를 위한 개념 총정리",
+    "우주를 여행하는 것 같은 영상",
+    "아주 멋진 자연들이 눈앞에 펼쳐지는 듯한 영상",
+    "아주 비싸보이는 자동차가 도로를 달리는 영상",
 ];
 
 const SORT_OPTIONS = [

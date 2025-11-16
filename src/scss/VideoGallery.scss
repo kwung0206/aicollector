@@ -666,3 +666,91 @@
     max-height: 45vh;  /* 모바일은 조금 더 줄임 */
   }
 }
+
+/* =========================
+   정렬 바
+   ========================= */
+
+.video-sort-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0 1.25rem;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.45), transparent 55%),
+  radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.35), transparent 55%);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  backdrop-filter: blur(16px);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.video-sort-label {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+  white-space: nowrap;
+}
+
+.video-sort-pill-group {
+  display: flex;
+  gap: 0.4rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.video-sort-pill {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition:
+          background 0.18s ease-out,
+          border-color 0.18s ease-out,
+          color 0.18s ease-out,
+          transform 0.12s ease-out;
+}
+
+.video-sort-pill:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  transform: translateY(-1px);
+}
+
+.video-sort-pill.is-active {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  border-color: transparent;
+  color: #0b1120;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.5),
+  0 12px 24px rgba(15, 23, 42, 0.7);
+}
+
+.video-sort-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+/* 모바일에서 정렬 바 줄 바꿈 */
+@media (max-width: 768px) {
+  .video-sort-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.7rem 0.9rem;
+    border-radius: 18px;
+  }
+
+  .video-sort-count {
+    align-self: flex-end;
+    margin-top: 0.1rem;
+  }
+}
+

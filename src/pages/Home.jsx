@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Story from "../components/home/Story.jsx";
-import { getHomeSummary, toggleVideoReaction, increaseVideoView } from "../api/video";
+import {
+    getHomeSummary,
+    toggleVideoReaction,
+    increaseVideoView,
+} from "../api/video";
 import { FaThumbsUp, FaThumbsDown, FaTimes } from "react-icons/fa";
-
 
 const ROTATE_MS = 6000;
 const STREAM_BASE = "/api/videos";
+const HOME_REACTION_KEY = "homeReactions"; // ✅ 홈 전용 로컬스토리지 키
 
 const Home = () => {
     const navigate = useNavigate();
@@ -23,7 +27,21 @@ const Home = () => {
     // 👍👎 상태 (videoNo 기준)
     const [reactionState, setReactionState] = useState({});
 
-    // 홈 요약 데이터 한번 가져오기
+    // ✅ 1) 처음 마운트 시, localStorage에서 홈 좋아요/싫어요 상태 복원
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem(HOME_REACTION_KEY);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === "object") {
+                setReactionState(parsed);
+            }
+        } catch (e) {
+            console.error("홈 리액션 상태 복원 실패", e);
+        }
+    }, []);
+
+    // 2) 홈 요약 데이터 한번 가져오기
     useEffect(() => {
         const fetchSummary = async () => {
             try {
@@ -36,13 +54,12 @@ const Home = () => {
 
                     const applyVideo = (v) => {
                         if (!v || !v.videoNo) return;
+                        // ⚠ 이미 localStorage에서 복원된 값이 있으면 덮어쓰지 않음
                         if (next[v.videoNo]) return;
                         next[v.videoNo] = {
                             likeCount: v.likeCount ?? 0,
                             dislikeCount: v.dislikeCount ?? 0,
-                            myReaction: v.myReaction
-                                ? v.myReaction.toLowerCase()
-                                : null,
+                            myReaction: v.myReaction ? v.myReaction.toLowerCase() : null,
                         };
                     };
 
@@ -93,9 +110,10 @@ const Home = () => {
     // 자동 슬라이드
     useEffect(() => {
         if (!featuredList.length) return;
-        const id = setInterval(() => {
-            setCurrentIdx((prev) => (prev + 1) % featuredList.length);
-        }, ROTATE_MS);
+        const id = setInterval(
+            () => setCurrentIdx((prev) => (prev + 1) % featuredList.length),
+            ROTATE_MS
+        );
         return () => clearInterval(id);
     }, [featuredList]);
 
@@ -125,9 +143,7 @@ const Home = () => {
         currentReaction?.dislikeCount ??
         (currentVideo ? currentVideo.dislikeCount ?? 0 : 0);
 
-    const totalVideosLabel = summary
-        ? `${summary.totalCount}편`
-        : "로딩 중...";
+    const totalVideosLabel = summary ? `${summary.totalCount}편` : "로딩 중...";
 
     const formatDate = (iso) => {
         if (!iso) return "";
@@ -140,16 +156,27 @@ const Home = () => {
             const action = type === "like" ? "LIKE" : "DISLIKE";
             const data = await toggleVideoReaction(videoNo, action);
 
-            setReactionState((prev) => ({
-                ...prev,
-                [videoNo]: {
-                    likeCount: data.likeCount ?? 0,
-                    dislikeCount: data.dislikeCount ?? 0,
-                    myReaction: data.myReaction
-                        ? data.myReaction.toLowerCase()
-                        : null,
-                },
-            }));
+            setReactionState((prev) => {
+                const next = {
+                    ...prev,
+                    [videoNo]: {
+                        likeCount: data.likeCount ?? 0,
+                        dislikeCount: data.dislikeCount ?? 0,
+                        myReaction: data.myReaction
+                            ? data.myReaction.toLowerCase()
+                            : null,
+                    },
+                };
+
+                // ✅ 홈 좋아요/싫어요 상태를 localStorage에 저장
+                try {
+                    localStorage.setItem(HOME_REACTION_KEY, JSON.stringify(next));
+                } catch (e) {
+                    console.error("홈 리액션 상태 저장 실패", e);
+                }
+
+                return next;
+            });
         } catch (e) {
             console.error("홈 좋아요/싫어요 처리 실패", e);
         }
@@ -189,9 +216,7 @@ const Home = () => {
                     if (!prev) return prev;
 
                     const patch = (v) =>
-                        v && v.videoNo === currentModalVideoNo
-                            ? { ...v, viewCount }
-                            : v;
+                        v && v.videoNo === currentModalVideoNo ? { ...v, viewCount } : v;
 
                     return {
                         ...prev,
@@ -251,7 +276,10 @@ const Home = () => {
                     <p className="hero-desc">
                         다양한 생성형 AI로 만든 영상
                         <br />
-                        불편하게 인터넷을 뒤지지 말고, 여러 사용자들이 만든 영상들을 감상하고, 무료로 다운로드 받으세요.
+                        불편하게 인터넷을 찾아 다니지 말고, 여러 사용자들이 만든 영상들을
+                        감상하고,
+                        <br />
+                        무료로 다운로드 받으세요.
                     </p>
 
                     <div className="hero-actions">
@@ -274,24 +302,18 @@ const Home = () => {
 
                     <div className="hero-stats">
                         <div className="stat">
-                            <span className="stat-value">
-                                {totalVideosLabel}
-                            </span>
-                            <span className="stat-label">
-                                등록된 AI 관련 영상
-                            </span>
+                            <span className="stat-value">{totalVideosLabel}</span>
+                            <span className="stat-label">등록된 AI 관련 영상</span>
                         </div>
                         <div className="stat">
                             <span className="stat-value">50+</span>
                             <span className="stat-label">
-                                카테고리(자연 · 게임 · 우주 등)
-                            </span>
+                카테고리(자연 · 게임 · 우주 등)
+              </span>
                         </div>
                         <div className="stat">
-                            <span className="stat-value">Searching</span>
-                            <span className="stat-label">
-                                AI 기반 자동 추천
-                            </span>
+                            <span className="stat-value">파인딩</span>
+                            <span className="stat-label">AI 기반 자동 추천</span>
                         </div>
                     </div>
                 </section>
@@ -300,14 +322,12 @@ const Home = () => {
                 <section className="hero-right">
                     <div className="glass-card">
                         <div className="glass-header">
-                            <span className={rankPillClass}>
-                                {currentVideo
-                                    ? currentVideo.badge
-                                    : "추천 준비 중"}
-                            </span>
+              <span className={rankPillClass}>
+                {currentVideo ? currentVideo.badge : "추천 준비 중"}
+              </span>
                             <span className="pill pill-ai">
-                                {currentVideo ? "AI 기반 큐레이션" : "AI TAG"}
-                            </span>
+                {currentVideo ? "AI 기반 큐레이션" : "AI TAG"}
+              </span>
                         </div>
 
                         <div className="glass-main">
@@ -315,9 +335,7 @@ const Home = () => {
                             <button
                                 type="button"
                                 className="thumbnail-button"
-                                onClick={() =>
-                                    currentVideo && openModal(currentVideo)
-                                }
+                                onClick={() => currentVideo && openModal(currentVideo)}
                                 disabled={!currentVideo}
                             >
                                 {currentVideo ? (
@@ -329,16 +347,12 @@ const Home = () => {
                                             playsInline
                                             preload="metadata"
                                         />
-                                        <div className="thumbnail-play-icon">
-                                            ▶
-                                        </div>
+                                        <div className="thumbnail-play-icon">▶</div>
                                     </div>
                                 ) : (
                                     <div className="thumbnail-skeleton">
                                         <div className="thumbnail-noise" />
-                                        <div className="thumbnail-play">
-                                            ▶
-                                        </div>
+                                        <div className="thumbnail-play">▶</div>
                                     </div>
                                 )}
                             </button>
@@ -353,22 +367,17 @@ const Home = () => {
 
                                 {currentVideo && (
                                     <div className="tag-row">
-                                        {(currentVideo.tags || [])
-                                            .slice(0, 4)
-                                            .map((t) => (
-                                                <span
-                                                    key={t}
-                                                    className="tag"
-                                                >
-                                                    #{t}
-                                                </span>
-                                            ))}
+                                        {(currentVideo.tags || []).slice(0, 4).map((t) => (
+                                            <span key={t} className="tag">
+                        #{t}
+                      </span>
+                                        ))}
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* 🔻 좋아요/싫어요/조회수 – 카드 맨 아래로 이동 */}
+                        {/* 🔻 좋아요/싫어요/조회수 – 카드 맨 아래 */}
                         <div className="glass-footer">
                             <div className="glass-footer-main">
                                 <div className="hero-carousel-dots">
@@ -394,51 +403,34 @@ const Home = () => {
                                             <button
                                                 type="button"
                                                 className={
-                                                    "video-like-btn" +
-                                                    (isLiked
-                                                        ? " is-active"
-                                                        : "")
+                                                    "video-like-btn" + (isLiked ? " is-active" : "")
                                                 }
                                                 onClick={() =>
-                                                    handleReaction(
-                                                        currentVideo.videoNo,
-                                                        "like"
-                                                    )
+                                                    handleReaction(currentVideo.videoNo, "like")
                                                 }
                                                 aria-label="좋아요"
                                             >
                                                 <FaThumbsUp />
                                             </button>
-                                            <span className="video-meta-count">
-                                                {likeCount}
-                                            </span>
+                                            <span className="video-meta-count">{likeCount}</span>
 
                                             <button
                                                 type="button"
                                                 className={
-                                                    "video-dislike-btn" +
-                                                    (isDisliked
-                                                        ? " is-active"
-                                                        : "")
+                                                    "video-dislike-btn" + (isDisliked ? " is-active" : "")
                                                 }
                                                 onClick={() =>
-                                                    handleReaction(
-                                                        currentVideo.videoNo,
-                                                        "dislike"
-                                                    )
+                                                    handleReaction(currentVideo.videoNo, "dislike")
                                                 }
                                                 aria-label="싫어요"
                                             >
                                                 <FaThumbsDown />
                                             </button>
-                                            <span className="video-meta-count">
-                                                {dislikeCount}
-                                            </span>
+                                            <span className="video-meta-count">{dislikeCount}</span>
                                         </div>
 
                                         <div className="glass-stats-view">
-                                             조회수{" "}
-                                            {currentVideo.viewCount ?? 0}
+                                            조회수 {currentVideo.viewCount ?? 0}
                                         </div>
                                     </div>
                                 )}
@@ -458,8 +450,7 @@ const Home = () => {
                         const rs =
                             reactionState[selectedVideo.videoNo] || {
                                 likeCount: selectedVideo.likeCount ?? 0,
-                                dislikeCount:
-                                    selectedVideo.dislikeCount ?? 0,
+                                dislikeCount: selectedVideo.dislikeCount ?? 0,
                                 myReaction: selectedVideo.myReaction
                                     ? selectedVideo.myReaction.toLowerCase()
                                     : null,
@@ -480,26 +471,19 @@ const Home = () => {
                                 >
                                     <header className="gallery-modal-header">
                                         <div>
-                                            <p className="gallery-modal-eyebrow">
-                                                영상 상세 보기
-                                            </p>
+                                            <p className="gallery-modal-eyebrow">영상 상세 보기</p>
                                             <h2 className="gallery-modal-title">
                                                 {selectedVideo.title}
                                             </h2>
 
                                             <div className="video-meta-stats gallery-modal-header-stats">
-                                                <span className="video-meta-view">
-                                                    조회수{" "}
-                                                    {selectedVideo.viewCount ??
-                                                        0}
-                                                </span>
+                        <span className="video-meta-view">
+                          조회수 {selectedVideo.viewCount ?? 0}
+                        </span>
                                                 {selectedVideo.uploadDate && (
                                                     <span className="video-meta-date">
-                                                        업로드{" "}
-                                                        {formatDate(
-                                                            selectedVideo.uploadDate
-                                                        )}
-                                                    </span>
+                            업로드 {formatDate(selectedVideo.uploadDate)}
+                          </span>
                                                 )}
                                             </div>
                                         </div>
@@ -531,59 +515,44 @@ const Home = () => {
                                                     <button
                                                         type="button"
                                                         className={
-                                                            "video-like-btn" +
-                                                            (liked
-                                                                ? " is-active"
-                                                                : "")
+                                                            "video-like-btn" + (liked ? " is-active" : "")
                                                         }
                                                         onClick={() =>
-                                                            handleReaction(
-                                                                selectedVideo.videoNo,
-                                                                "like"
-                                                            )
+                                                            handleReaction(selectedVideo.videoNo, "like")
                                                         }
                                                         aria-label="좋아요"
                                                     >
                                                         <FaThumbsUp />
                                                     </button>
                                                     <span className="video-meta-count">
-                                                        {rs.likeCount}
-                                                    </span>
+                            {rs.likeCount}
+                          </span>
 
                                                     <button
                                                         type="button"
                                                         className={
                                                             "video-dislike-btn" +
-                                                            (disliked
-                                                                ? " is-active"
-                                                                : "")
+                                                            (disliked ? " is-active" : "")
                                                         }
                                                         onClick={() =>
-                                                            handleReaction(
-                                                                selectedVideo.videoNo,
-                                                                "dislike"
-                                                            )
+                                                            handleReaction(selectedVideo.videoNo, "dislike")
                                                         }
                                                         aria-label="싫어요"
                                                     >
                                                         <FaThumbsDown />
                                                     </button>
                                                     <span className="video-meta-count">
-                                                        {rs.dislikeCount}
-                                                    </span>
+                            {rs.dislikeCount}
+                          </span>
                                                 </div>
                                             </div>
 
                                             {/* 설명 */}
                                             {selectedVideo.description && (
                                                 <div className="gallery-modal-field">
-                                                    <span className="gallery-modal-label">
-                                                        설명
-                                                    </span>
+                                                    <span className="gallery-modal-label">설명</span>
                                                     <p className="gallery-modal-text">
-                                                        {
-                                                            selectedVideo.description
-                                                        }
+                                                        {selectedVideo.description}
                                                     </p>
                                                 </div>
                                             )}
@@ -591,9 +560,7 @@ const Home = () => {
                                             {/* 태그 */}
                                             {selectedVideo.tag1 && (
                                                 <div className="gallery-modal-field">
-                                                    <span className="gallery-modal-label">
-                                                        태그
-                                                    </span>
+                                                    <span className="gallery-modal-label">태그</span>
                                                     <div className="gallery-modal-tags">
                                                         {[
                                                             selectedVideo.tag1,
@@ -603,18 +570,14 @@ const Home = () => {
                                                             selectedVideo.tag5,
                                                         ]
                                                             .filter(Boolean)
-                                                            .map(
-                                                                (t, idx) => (
-                                                                    <span
-                                                                        key={
-                                                                            idx
-                                                                        }
-                                                                        className="gallery-modal-tag"
-                                                                    >
-                                                                        #{t}
-                                                                    </span>
-                                                                )
-                                                            )}
+                                                            .map((t, idx) => (
+                                                                <span
+                                                                    key={idx}
+                                                                    className="gallery-modal-tag"
+                                                                >
+                                  #{t}
+                                </span>
+                                                            ))}
                                                     </div>
                                                 </div>
                                             )}
