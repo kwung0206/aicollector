@@ -1,16 +1,15 @@
-// src/pages/Finding.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import "../scss/Finding.scss";
 import {
     FaSearch,
-    FaFire,
-    FaClock,
-    FaArrowUp,
-    FaArrowDown,
     FaThumbsUp,
     FaThumbsDown,
     FaPlay,
+    FaTimes,
 } from "react-icons/fa";
+import api from "../api/apiClient.js";
+import { createPortal } from "react-dom";
+import { toggleVideoReaction, increaseVideoView  } from "../api/video"; // 👍/👎 API 재사용
 
 const EXAMPLE_PROMPTS = [
     "RAG 구조를 쉽게 설명해주는 강의 추천해줘",
@@ -18,71 +17,22 @@ const EXAMPLE_PROMPTS = [
     "자연어 처리 입문자를 위한 개념 총정리",
 ];
 
-const MOCK_VIDEOS = [
-    {
-        id: 1,
-        title: "RAG(Retrieval-Augmented Generation) 아키텍처 한 번에 이해하기",
-        description: "문서 검색 + 생성 결합 구조를 실제 코드 예제와 함께 설명합니다.",
-        views: 18423,
-        likes: 920,
-        dislikes: 12,
-        createdAt: "2025-11-04T10:00:00Z",
-        duration: "18:32",
-        tags: ["RAG", "LLM", "검색"],
-    },
-    {
-        id: 2,
-        title: "PyTorch로 Transformer 인코더를 처음부터 구현해보기",
-        description: "Multi-Head Attention, Positional Encoding까지 디테일하게 구현.",
-        views: 32501,
-        likes: 1580,
-        dislikes: 20,
-        createdAt: "2025-10-28T08:30:00Z",
-        duration: "27:15",
-        tags: ["PyTorch", "Transformer", "딥러닝"],
-    },
-    {
-        id: 3,
-        title: "자연어 처리 개념 총정리: 토큰화부터 GPT까지",
-        description: "NLP 개념을 그림과 함께 직관적으로 설명하는 입문용 강의.",
-        views: 9050,
-        likes: 610,
-        dislikes: 5,
-        createdAt: "2025-09-15T14:20:00Z",
-        duration: "22:47",
-        tags: ["NLP", "입문", "GPT"],
-    },
-    {
-        id: 4,
-        title: "컴퓨터 비전으로 실시간 객체 탐지 시스템 만들기",
-        description: "YOLO 기반 실시간 탐지 파이프라인 구현 과정.",
-        views: 45210,
-        likes: 2103,
-        dislikes: 44,
-        createdAt: "2025-07-02T11:10:00Z",
-        duration: "31:09",
-        tags: ["CV", "YOLO", "실시간"],
-    },
-    {
-        id: 5,
-        title: "LLM 프롬프트 엔지니어링 실전 팁 10가지",
-        description: "실제 서비스에 쓰이는 프롬프트 패턴과 실전 노하우를 정리합니다.",
-        views: 12890,
-        likes: 870,
-        dislikes: 10,
-        createdAt: "2025-08-10T09:00:00Z",
-        duration: "16:40",
-        tags: ["프롬프트", "LLM", "서비스"],
-    },
+const SORT_OPTIONS = [
+    { id: "views", label: "조회수" },
+    { id: "latest", label: "최신순" },
+    { id: "oldest", label: "오래된순" },
+    { id: "likes", label: "좋아요순" },
+    { id: "dislikes", label: "싫어요순" },
 ];
 
-const SORT_OPTIONS = [
-    { id: "views", label: "조회수", icon: FaFire },
-    { id: "latest", label: "최신순", icon: FaArrowDown },
-    { id: "oldest", label: "오래된순", icon: FaArrowUp },
-    { id: "likes", label: "좋아요순", icon: FaThumbsUp },
-    { id: "dislikes", label: "싫어요순", icon: FaThumbsDown },
+const ACCURACY_OPTIONS = [
+    { id: "all", label: "정확도 전체" },
+    { id: "high", label: "높음" },
+    { id: "medium", label: "보통" },
+    { id: "low", label: "낮음" },
 ];
+
+const STREAM_BASE = "/api/videos";
 
 const formatDate = (iso) => {
     if (!iso) return "-";
@@ -91,25 +41,205 @@ const formatDate = (iso) => {
     return `${d.getFullYear()}.${z(d.getMonth() + 1)}.${z(d.getDate())}`;
 };
 
-const formatNumber = (n) => n.toLocaleString("ko-KR");
+const formatNumber = (n) => Number(n || 0).toLocaleString("ko-KR");
+
+// 초 → "MM:SS"
+const formatDurationFromSec = (sec) => {
+    if (sec === null || sec === undefined) return "-";
+    const total = Number(sec);
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    const z = (v) => String(v).padStart(2, "0");
+    return `${m}:${z(s)}`;
+};
+
+/** 🔍 프롬프트 검색 결과용 영상 모달 (좋아요/싫어요 포함) */
+const SearchVideoModal = ({ video, reaction, onReaction, onClose }) => {
+    if (!video) return null;
+
+    const rs =
+        reaction || {
+            likeCount: video.likes ?? 0,
+            dislikeCount: video.dislikes ?? 0,
+            myReaction: null,
+        };
+
+    const liked = rs.myReaction === "like";
+    const disliked = rs.myReaction === "dislike";
+
+    return createPortal(
+        <div className="gallery-modal-backdrop" onClick={onClose}>
+            <div
+                className="gallery-modal"
+                role="dialog"
+                aria-modal="true"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <header className="gallery-modal-header">
+                    <div>
+                        <p className="gallery-modal-eyebrow">영상 상세 보기</p>
+                        <h2 className="gallery-modal-title">{video.title}</h2>
+
+                        <div className="video-meta-stats gallery-modal-header-stats">
+                            <span className="video-meta-view">
+                                조회수 {formatNumber(rs.likeCount + rs.dislikeCount ? video.views : video.views)}
+                            </span>
+                            {video.createdAt && (
+                                <span className="video-meta-date">
+                                    업로드 {formatDate(video.createdAt)}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="gallery-modal-close"
+                        onClick={onClose}
+                        aria-label="닫기"
+                    >
+                        <FaTimes />
+                    </button>
+                </header>
+
+                <div className="gallery-modal-body">
+                    {/* ▶ 위쪽: 영상 플레이어 */}
+                    <div className="gallery-modal-player-wrap">
+                        <video
+                            className="gallery-modal-player"
+                            src={`${STREAM_BASE}/${video.videoNo}/stream`}
+                            controls
+                            autoPlay
+                        />
+                    </div>
+
+                    {/* ▶ 아래쪽: 메타 정보 + 반응 */}
+                    <div className="gallery-modal-meta">
+                        {/* 좋아요 / 싫어요 */}
+                        <div className="gallery-modal-field">
+                            <span className="gallery-modal-label">반응</span>
+                            <div className="video-meta-actions">
+                                <button
+                                    type="button"
+                                    className={
+                                        "video-like-btn" + (liked ? " is-active" : "")
+                                    }
+                                    onClick={() => onReaction(video.videoNo, "like")}
+                                    aria-label="좋아요"
+                                >
+                                    <FaThumbsUp />
+                                </button>
+                                <span className="video-meta-count">
+                                    {formatNumber(rs.likeCount)}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    className={
+                                        "video-dislike-btn" +
+                                        (disliked ? " is-active" : "")
+                                    }
+                                    onClick={() => onReaction(video.videoNo, "dislike")}
+                                    aria-label="싫어요"
+                                >
+                                    <FaThumbsDown />
+                                </button>
+                                <span className="video-meta-count">
+                                    {formatNumber(rs.dislikeCount)}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* 설명 */}
+                        {video.description && (
+                            <div className="gallery-modal-field">
+                                <span className="gallery-modal-label">설명</span>
+                                <p className="gallery-modal-text">
+                                    {video.description}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* 태그 */}
+                        {video.tags && video.tags.length > 0 && (
+                            <div className="gallery-modal-field">
+                                <span className="gallery-modal-label">태그</span>
+                                <div className="gallery-modal-tags">
+                                    {video.tags.map((t) => (
+                                        <span key={t} className="gallery-modal-tag">
+                                            #{t}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
 
 const Finding = () => {
     const [prompt, setPrompt] = useState("");
     const [lastQuery, setLastQuery] = useState("");
     const [sort, setSort] = useState("latest");
+    const [accuracyFilter, setAccuracyFilter] = useState("all");
     const [isSearching, setIsSearching] = useState(false);
     const [typingHint, setTypingHint] = useState(false);
     const [exampleIdx, setExampleIdx] = useState(0);
 
+    const [videos, setVideos] = useState([]); // 검색 결과
+    const [intentSummary, setIntentSummary] = useState("");
+
+    // 👍/👎 상태 (videoNo 기준)
+    const [reactionState, setReactionState] = useState({});
+
+    // 모달에 띄울 영상
+    const [selectedVideo, setSelectedVideo] = useState(null);
+
+    const currentModalVideoNo = selectedVideo?.videoNo;
+
+    // ✅ 모달 열릴 때 조회수 1 증가
+    useEffect(() => {
+        if (!currentModalVideoNo) return;
+
+        (async () => {
+            try {
+                const { viewCount } = await increaseVideoView(currentModalVideoNo);
+
+                // 리스트(검색 결과)의 views 갱신
+                setVideos((prev) =>
+                    prev.map((v) =>
+                        v.videoNo === currentModalVideoNo
+                            ? { ...v, views: viewCount } // 🔹 Finding 쪽은 필드명이 views
+                            : v
+                    )
+                );
+
+                // 모달 안 숫자 갱신
+                setSelectedVideo((prev) =>
+                    prev && prev.videoNo === currentModalVideoNo
+                        ? { ...prev, views: viewCount }
+                        : prev
+                );
+            } catch (e) {
+                console.error("조회수 증가 실패", e);
+            }
+        })();
+    }, [currentModalVideoNo]);
+
     // 예시 프롬프트 순환
     useEffect(() => {
-        const timer = setInterval(() => {
-            setExampleIdx((idx) => (idx + 1) % EXAMPLE_PROMPTS.length);
-        }, 5000);
+        const timer = setInterval(
+            () => setExampleIdx((idx) => (idx + 1) % EXAMPLE_PROMPTS.length),
+            5000
+        );
         return () => clearInterval(timer);
     }, []);
 
-    // 입력 중 상태 (살짝 반짝이는 "AI가 이해 중..." 표시)
+    // 입력 중 상태
     useEffect(() => {
         if (!prompt) {
             setTypingHint(false);
@@ -120,14 +250,85 @@ const Finding = () => {
         return () => clearTimeout(t);
     }, [prompt]);
 
-    const handleSearch = () => {
+    // 모달 열릴 때 body 스크롤 잠그고 ESC 로 닫기
+    useEffect(() => {
+        if (!selectedVideo) return;
+
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+
+        const onKeyDown = (e) => {
+            if (e.key === "Escape") setSelectedVideo(null);
+        };
+        window.addEventListener("keydown", onKeyDown);
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            window.removeEventListener("keydown", onKeyDown);
+        };
+    }, [selectedVideo]);
+
+    const handleSearch = async () => {
         const q = prompt.trim();
+        if (!q) return;
+
         setLastQuery(q);
         setIsSearching(true);
-        // 실제 API 연동 시 여기서 호출
-        setTimeout(() => {
+        setAccuracyFilter("all");
+
+        try {
+            const { data } = await api.post("/finding/search", {
+                prompt: q,
+                sort,
+            });
+
+            setIntentSummary(data.intentSummary || "");
+
+            const mapped =
+                (data.videos || []).map((v) => ({
+                    id: v.videoNo ?? v.id,
+                    videoNo: v.videoNo ?? v.id,
+                    title: v.title,
+                    description: v.description,
+                    views: v.views ?? 0,
+                    likes: v.likes ?? 0,
+                    dislikes: v.dislikes ?? 0,
+                    createdAt: v.createdAt,
+                    duration: v.durationSec
+                        ? formatDurationFromSec(v.durationSec)
+                        : v.duration,
+                    tags: v.tags || [],
+                    matchScore: v.matchScore ?? 0,
+                    matchLevel: (v.matchLevel || "MEDIUM").toUpperCase(),
+                    myReaction: v.myReaction
+                        ? v.myReaction.toLowerCase()
+                        : null,
+                })) || [];
+
+            setVideos(mapped);
+
+            // 👍/👎 초기 상태 세팅
+            setReactionState((prev) => {
+                const next = { ...prev };
+                mapped.forEach((v) => {
+                    if (!next[v.videoNo]) {
+                        next[v.videoNo] = {
+                            likeCount: v.likes ?? 0,
+                            dislikeCount: v.dislikes ?? 0,
+                            myReaction: v.myReaction,
+                        };
+                    }
+                });
+                return next;
+            });
+        } catch (e) {
+            console.error("프롬프트 검색 실패", e);
+            setVideos([]);
+            setIntentSummary("");
+            setReactionState({});
+        } finally {
             setIsSearching(false);
-        }, 500); // UX용 가짜 로딩
+        }
     };
 
     const handleKeyDown = (e) => {
@@ -137,17 +338,61 @@ const Finding = () => {
         }
     };
 
-    const filteredVideos = useMemo(() => {
-        let list = [...MOCK_VIDEOS];
+    // 👍/👎 토글
+    const handleReaction = async (videoNo, type) => {
+        try {
+            const action = type === "like" ? "LIKE" : "DISLIKE";
+            const data = await toggleVideoReaction(videoNo, action);
 
-        if (lastQuery) {
-            const q = lastQuery.toLowerCase();
-            list = list.filter(
-                (v) =>
-                    v.title.toLowerCase().includes(q) ||
-                    v.description.toLowerCase().includes(q) ||
-                    v.tags.some((t) => t.toLowerCase().includes(q))
+            setReactionState((prev) => ({
+                ...prev,
+                [videoNo]: {
+                    likeCount:
+                        data.likeCount ??
+                        prev[videoNo]?.likeCount ??
+                        0,
+                    dislikeCount:
+                        data.dislikeCount ??
+                        prev[videoNo]?.dislikeCount ??
+                        0,
+                    myReaction: data.myReaction
+                        ? data.myReaction.toLowerCase()
+                        : null,
+                },
+            }));
+
+            // 리스트에 보이는 숫자도 같이 갱신
+            setVideos((prev) =>
+                prev.map((v) =>
+                    v.videoNo === videoNo
+                        ? {
+                            ...v,
+                            likes:
+                                data.likeCount ??
+                                v.likes,
+                            dislikes:
+                                data.dislikeCount ??
+                                v.dislikes,
+                            myReaction: data.myReaction
+                                ? data.myReaction.toLowerCase()
+                                : null,
+                        }
+                        : v
+                )
             );
+        } catch (err) {
+            console.error("좋아요/싫어요 처리 실패:", err);
+        }
+    };
+
+    const filteredVideos = useMemo(() => {
+        let list = [...videos];
+
+        if (accuracyFilter !== "all") {
+            list = list.filter((v) => {
+                const lvl = (v.matchLevel || "").toLowerCase();
+                return lvl === accuracyFilter;
+            });
         }
 
         switch (sort) {
@@ -175,9 +420,24 @@ const Finding = () => {
         }
 
         return list;
-    }, [lastQuery, sort]);
+    }, [videos, sort, accuracyFilter]);
 
     const resultCount = filteredVideos.length;
+
+    const renderAccuracyPill = (level) => {
+        const lvl = (level || "").toUpperCase();
+        if (!lvl) return null;
+        const label =
+            lvl === "HIGH" ? "높음" : lvl === "LOW" ? "낮음" : "보통";
+
+        return (
+            <span
+                className={`finding-accuracy-pill level-${lvl.toLowerCase()}`}
+            >
+                {label}
+            </span>
+        );
+    };
 
     return (
         <section className="finding">
@@ -193,7 +453,8 @@ const Finding = () => {
                     <p className="finding-desc">
                         찾고 싶은 내용을 자연어로 편하게 적으면,
                         <br />
-                        나중에 백엔드에서 임베딩 기반으로 유사한 영상을 찾아줄 예정입니다.
+                        백엔드에서 ChatGPT로 프롬프트를 분석하고,
+                        추출된 특징 태그를 기준으로 비슷한 영상을 찾아줍니다.
                     </p>
 
                     <div className="finding-prompt-card">
@@ -225,7 +486,7 @@ const Finding = () => {
                                 {typingHint
                                     ? "AI가 프롬프트를 이해하는 중..."
                                     : lastQuery
-                                        ? `“${lastQuery}” 기준으로 임시 결과를 보여주고 있어요.`
+                                        ? "AI가 해당 프롬프트를 기준으로 영상을 검색한 결과예요."
                                         : "Ctrl + Enter 로 바로 검색할 수 있어요."}
                             </div>
                             <div className="finding-prompt-meta">
@@ -240,7 +501,9 @@ const Finding = () => {
                                 >
                                     <FaSearch />
                                     <span>
-                                        {isSearching ? "검색 중..." : "프롬프트로 찾기"}
+                                        {isSearching
+                                            ? "검색 중..."
+                                            : "프롬프트로 찾기"}
                                     </span>
                                 </button>
                             </div>
@@ -258,30 +521,70 @@ const Finding = () => {
                                 </p>
                                 <p className="finding-results-sub">
                                     {lastQuery
-                                        ? `“${lastQuery}” 와(과) 유사한 후보 ${resultCount}개`
-                                        : `예시 데이터 ${MOCK_VIDEOS.length}개를 보여주고 있어요.`}
+                                        ? `프롬프트 기준 유사한 후보 ${resultCount}개`
+                                        : "프롬프트를 입력하면 검색 결과가 여기에 표시됩니다."}
                                 </p>
+
+                                {intentSummary && (
+                                    <p className="finding-intent">
+                                        AI 요약: {intentSummary}
+                                    </p>
+                                )}
                             </div>
 
-                            <div className="finding-sortbar">
-                                {SORT_OPTIONS.map((opt) => {
-                                    const Icon = opt.icon;
-                                    const active = sort === opt.id;
-                                    return (
-                                        <button
-                                            key={opt.id}
-                                            type="button"
-                                            className={
-                                                "finding-sort-pill" +
-                                                (active ? " is-active" : "")
-                                            }
-                                            onClick={() => setSort(opt.id)}
-                                        >
-                                            <Icon />
-                                            <span>{opt.label}</span>
-                                        </button>
-                                    );
-                                })}
+                            <div className="finding-controls">
+                                <div className="finding-sortbar">
+                                    {SORT_OPTIONS.map((opt) => {
+                                        const active = sort === opt.id;
+                                        return (
+                                            <button
+                                                key={opt.id}
+                                                type="button"
+                                                className={
+                                                    "finding-sort-pill" +
+                                                    (active ? " is-active" : "")
+                                                }
+                                                onClick={() => setSort(opt.id)}
+                                            >
+                                                <span>{opt.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                <div className="finding-accuracy-filter">
+                                    {ACCURACY_OPTIONS.map((opt) => {
+                                        const active =
+                                            accuracyFilter === opt.id;
+                                        const levelClass =
+                                            opt.id === "all"
+                                                ? " is-all"
+                                                : opt.id === "high"
+                                                    ? " is-high"
+                                                    : opt.id === "medium"
+                                                        ? " is-medium"
+                                                        : opt.id === "low"
+                                                            ? " is-low"
+                                                            : "";
+
+                                        return (
+                                            <button
+                                                key={opt.id}
+                                                type="button"
+                                                className={
+                                                    "finding-accuracy-btn" +
+                                                    (active ? " is-active" : "") +
+                                                    (active ? levelClass : "")
+                                                }
+                                                onClick={() =>
+                                                    setAccuracyFilter(opt.id)
+                                                }
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
 
@@ -302,67 +605,121 @@ const Finding = () => {
                                         </div>
                                     ))}
                                 </>
+                            ) : !lastQuery ? (
+                                <div className="finding-empty finding-empty--initial">
+                                    <p>아직 검색 전이에요.</p>
+                                    <p>왼쪽에 프롬프트를 입력하고 검색해 보세요.</p>
+                                </div>
                             ) : resultCount === 0 ? (
                                 <div className="finding-empty">
-                                    <p>아직 조건에 맞는 영상이 없어요.</p>
+                                    <p>조건에 맞는 영상이 없어요.</p>
                                     <p>프롬프트를 조금 더 넓게 적어보는 건 어떨까요?</p>
                                 </div>
                             ) : (
-                                filteredVideos.map((v) => (
-                                    <article
-                                        key={v.id}
-                                        className="finding-video-card"
-                                    >
-                                        <div className="finding-thumb">
-                                            <div className="finding-thumb-overlay">
-                                                <FaPlay />
-                                            </div>
-                                            <span className="finding-thumb-duration">
-                                                {v.duration}
-                                            </span>
-                                        </div>
-                                        <div className="finding-video-main">
-                                            <h3 className="finding-video-title">
-                                                {v.title}
-                                            </h3>
-                                            <p className="finding-video-desc">
-                                                {v.description}
-                                            </p>
-                                            <div className="finding-video-meta">
-                                                <span>
-                                                    조회수 {formatNumber(v.views)}
-                                                </span>
-                                                <span>·</span>
-                                                <span>{formatDate(v.createdAt)}</span>
-                                            </div>
-                                            <div className="finding-video-stats">
-                                                <span>
-                                                    <FaThumbsUp />{" "}
-                                                    {formatNumber(v.likes)}
-                                                </span>
-                                                <span>
-                                                    <FaThumbsDown />{" "}
-                                                    {formatNumber(v.dislikes)}
+                                filteredVideos.map((v) => {
+                                    const rs = reactionState[v.videoNo];
+                                    const likes =
+                                        rs?.likeCount ?? v.likes;
+                                    const dislikes =
+                                        rs?.dislikeCount ?? v.dislikes;
+
+                                    return (
+                                        <article
+                                            key={v.id}
+                                            className="finding-video-card"
+                                        >
+                                            <div
+                                                className="finding-thumb"
+                                                onClick={() =>
+                                                    setSelectedVideo(v)
+                                                }
+                                            >
+                                                <video
+                                                    className="finding-thumb-video"
+                                                    src={`${STREAM_BASE}/${v.videoNo}/stream`}
+                                                    muted
+                                                    playsInline
+                                                    preload="metadata"
+                                                    controls={false}
+                                                />
+                                                <div className="finding-thumb-overlay">
+                                                    <FaPlay />
+                                                </div>
+                                                <span className="finding-thumb-duration">
+                                                    {v.duration || "-"}
                                                 </span>
                                             </div>
-                                            <div className="finding-video-tags">
-                                                {v.tags.map((t) => (
-                                                    <span
-                                                        key={t}
-                                                        className="finding-tag"
-                                                    >
-                                                        #{t}
+                                            <div className="finding-video-main">
+                                                <h3 className="finding-video-title">
+                                                    {v.title}
+                                                </h3>
+                                                <p className="finding-video-desc">
+                                                    {v.description}
+                                                </p>
+                                                <div className="finding-video-meta">
+                                                    <span>
+                                                        조회수{" "}
+                                                        {formatNumber(
+                                                            v.views
+                                                        )}
                                                     </span>
-                                                ))}
+                                                    <span>·</span>
+                                                    <span>
+                                                        {formatDate(
+                                                            v.createdAt
+                                                        )}
+                                                    </span>
+                                                    <span>·</span>
+                                                    {renderAccuracyPill(
+                                                        v.matchLevel
+                                                    )}
+                                                </div>
+                                                <div className="finding-video-stats">
+                                                    <span>
+                                                        <FaThumbsUp />{" "}
+                                                        {formatNumber(likes)}
+                                                    </span>
+                                                    <span>
+                                                        <FaThumbsDown />{" "}
+                                                        {formatNumber(
+                                                            dislikes
+                                                        )}
+                                                    </span>
+                                                </div>
+                                                {v.tags &&
+                                                    v.tags.length > 0 && (
+                                                        <div className="finding-video-tags">
+                                                            {v.tags.map(
+                                                                (t) => (
+                                                                    <span
+                                                                        key={t}
+                                                                        className="finding-tag"
+                                                                    >
+                                                                        #{t}
+                                                                    </span>
+                                                                )
+                                                            )}
+                                                        </div>
+                                                    )}
                                             </div>
-                                        </div>
-                                    </article>
-                                ))
+                                        </article>
+                                    );
+                                })
                             )}
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* 🔍 모달 (여기서 좋아요/싫어요 가능) */}
+            {selectedVideo && (
+                <SearchVideoModal
+                    video={selectedVideo}
+                    reaction={reactionState[selectedVideo.videoNo]}
+                    onReaction={handleReaction}
+                    onClose={() => setSelectedVideo(null)}
+                />
+            )}
         </section>
     );
 };

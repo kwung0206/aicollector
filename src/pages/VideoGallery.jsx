@@ -1,7 +1,7 @@
 // src/pages/VideoGallery.jsx
 import { useState, useEffect, useMemo } from "react";
 import "../scss/VideoGallery.scss";
-import { getPublicVideos, toggleVideoReaction } from "../api/video";
+import { getPublicVideos, toggleVideoReaction, increaseVideoView } from "../api/video";
 import { FaThumbsUp, FaThumbsDown, FaPlay, FaTimes } from "react-icons/fa";
 import { createPortal } from "react-dom";
 
@@ -213,6 +213,36 @@ const VideoGallery = () => {
 
     // ✅ 좋아요/싫어요 상태
     const [reactionState, setReactionState] = useState({});
+    const currentModalVideoNo = selectedVideo?.videoNo;
+
+    // ✅ 모달 열릴 때 조회수 1 증가
+    useEffect(() => {
+        if (!currentModalVideoNo) return;
+
+        (async () => {
+            try {
+                const { viewCount } = await increaseVideoView(currentModalVideoNo);
+
+                // 리스트 카드의 조회수 갱신
+                setVideos((prev) =>
+                    prev.map((v) =>
+                        v.videoNo === currentModalVideoNo
+                            ? { ...v, viewCount }
+                            : v
+                    )
+                );
+
+                // 모달 안 숫자도 갱신
+                setSelectedVideo((prev) =>
+                    prev && prev.videoNo === currentModalVideoNo
+                        ? { ...prev, viewCount }
+                        : prev
+                );
+            } catch (e) {
+                console.error("조회수 증가 실패", e);
+            }
+        })();
+    }, [currentModalVideoNo]);
 
     const handleSearchSubmit = async (e) => {
         e.preventDefault();

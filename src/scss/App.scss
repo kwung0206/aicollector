@@ -1,7 +1,4 @@
-// scss/App.scss
-
 /* 기본 색 설정 */
-
 
 :root {
   --bg-main: #020617;
@@ -16,6 +13,9 @@
 
   --layout-col-left: 1.6fr;
   --layout-col-right: 1.4fr;
+
+  --finding-results-min-h: 550px;
+  --finding-results-max-h: 550px;
 }
 
 *,
@@ -44,8 +44,12 @@ body {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  background:
-          radial-gradient(120% 120% at 0% 0%, #1d2341 0, #020617 40%, #020617 100%);
+  background: radial-gradient(
+                  120% 120% at 0% 0%,
+                  #1d2341 0,
+                  #020617 40%,
+                  #020617 100%
+  );
   color: var(--text-main);
   min-height: 100vh;
   display: flex;
@@ -153,9 +157,9 @@ body {
 }
 
 .nav-link {
-  display: inline-flex;          /* 🔹 추가 */
-  align-items: center;           /* 🔹 추가 */
-  justify-content: center;       /* 선택이지만 넣어두면 딱 맞음 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   border-radius: 999px;
   padding: 0.35rem 0.85rem;
@@ -290,12 +294,14 @@ body {
 .hero-right {
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* 가운데가 아니라 컬럼 안에서 꽉 차 보이게 오른쪽 정렬 */
+  justify-content: flex-end;  /* <-- 기존 center에서 변경 */
 }
 
 .glass-card {
   width: 100%;
-  max-width: 420px;
+  /* max-width: 420px;  <-- 이 줄 삭제하거나 주석 처리 */
+  max-width: 100%;           /* 또는 이렇게 덮어 써도 됨 */
   border-radius: 24px;
   padding: 1.3rem 1.2rem 1.1rem;
   background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 60%),
@@ -323,6 +329,24 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.13);
   pointer-events: none;
 }
+/* 홈 카드 하단 좋아요/싫어요/조회수 영역 */
+.glass-stats-row {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.glass-stats-actions {
+  display: inline-flex;
+  align-items: center;
+}
+
+.glass-stats-view {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
 
 /* 카드 상단 */
 .glass-header {
@@ -330,6 +354,41 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.8rem;
+}
+/* 홈 카드 하단 레이아웃 */
+.glass-footer-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* 위에서 쓰던 행 재활용 + 푸터용 마진 조정 */
+.glass-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+}
+
+.glass-stats-row--footer {
+  margin-top: 0; /* 푸터에선 위 여백 제거 */
+}
+
+.glass-stats-actions {
+  display: inline-flex;
+  align-items: center;
+}
+
+.glass-stats-view {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* 제목 h2에 살짝 간격 */
+.glass-title-heading {
+  margin: 0 0 0.4rem;
 }
 
 .pill {
@@ -342,6 +401,22 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.7);
   background: rgba(15, 23, 42, 0.8);
 }
+/* 랭킹 pill 색상 */
+.pill-rank-like {
+  border-color: rgba(34, 197, 94, 0.9);  /* 초록 계열 */
+  color: #bbf7d0;
+}
+
+.pill-rank-view {
+  border-color: rgba(59, 130, 246, 0.9); /* 파랑 계열 */
+  color: #bfdbfe;
+}
+
+.pill-rank-dislike {
+  border-color: rgba(248, 113, 113, 0.9); /* 기존 싫어요 느낌 */
+  color: #fecaca;
+}
+
 
 .pill-live {
   border-color: rgba(248, 113, 113, 0.8);
@@ -365,13 +440,68 @@ body {
 /* 메인 영역 */
 .glass-main {
   display: grid;
-  grid-template-columns: 1.1fr 1.4fr;
-  gap: 0.9rem;
-  align-items: center;
+  grid-template-columns: 1.35fr 1.45fr;  /* ⬅ 왼쪽(영상) 비율 조금 키움 */
+  gap: 1.1rem;
+  align-items: stretch;                  /* 썸네일 세로로도 꽉 차게 */
 }
 
+/* =======================
+   썸네일 영역
+   ======================= */
+
+/* 썸네일 버튼 – 기본 버튼 스타일 제거 */
+.thumbnail-button {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+
+
+.thumbnail-button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* 실제 썸네일 이미지 래퍼 (16:9 비율 고정) */
+.thumbnail-image-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 65%; /* ⬅ 여기 숫자가 크기 조절 핵심 (높이) */
+  border-radius: 18px;
+  overflow: hidden;
+  background: #020617;
+  border: 1px solid rgba(30, 64, 175, 0.7);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.95);
+}
+
+.thumbnail-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 플레이 아이콘 오버레이 */
+.thumbnail-play-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  color: rgba(248, 250, 252, 0.9);
+  text-shadow: 0 0 18px rgba(59, 130, 246, 0.9);
+}
+
+/* skeleton 썸네일 (데이터 없을 때만 사용) */
 .thumbnail-skeleton {
   position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
   border-radius: 16px;
   overflow: hidden;
   background: radial-gradient(circle at 10% 0, #22d3ee11, #0f172a 60%);
@@ -397,7 +527,7 @@ body {
 .thumbnail-play {
   position: relative;
   width: 100%;
-  padding-top: 60%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -406,9 +536,92 @@ body {
   text-shadow: 0 0 18px rgba(59, 130, 246, 0.9);
 }
 
+/* (남아 있지만 현재는 사용 X) 썸네일 배지 색 팔레트 */
+.thumbnail-badge--like {
+  border-color: rgba(52, 211, 153, 0.9);
+  color: #bbf7d0;
+}
+
+.thumbnail-badge--view {
+  border-color: rgba(59, 130, 246, 0.9);
+  color: #bfdbfe;
+}
+
+.thumbnail-badge--dislike {
+  border-color: rgba(248, 113, 113, 0.9);
+  color: #fecaca;
+}
+.thumbnail-video,
+.thumbnail-image-wrapper img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* 꽉 채우되 비율 유지 */
+  display: block;
+}
+/* 슬라이드 인디케이터 점 */
+.hero-carousel-dots {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 0.35rem;
+}
+
+.hero-carousel-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border-radius: 999px;
+  border: none;
+  background: rgba(148, 163, 184, 0.5);
+  cursor: pointer;
+  transition: all 0.18s ease-out;
+}
+
+.hero-carousel-dot--active {
+  background: linear-gradient(90deg, #38bdf8, #a855f7);
+  transform: scale(1.5);
+}
+
+/* 글라스 카드 안에 메타 정보/제목/통계 */
+
+.glass-info {
+  /* 기본 여백은 h2/p 쪽에서 조정 */
+}
+
+.glass-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.25rem;
+}
+
+.glass-rank {
+  padding: 0.14rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid rgba(148, 163, 184, 0.75);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.glass-rank--like {
+  border-color: rgba(52, 211, 153, 0.9);
+  color: #bbf7d0;
+}
+
+.glass-rank--view {
+  border-color: rgba(59, 130, 246, 0.9);
+  color: #bfdbfe;
+}
+
+.glass-rank--dislike {
+  border-color: rgba(248, 113, 113, 0.9);
+  color: #fecaca;
+}
+
 /* 오른쪽 텍스트 */
 .glass-info h2 {
-  margin: 0 0 0.3rem;
+  margin: 0;
   font-size: 1.02rem;
 }
 
@@ -419,6 +632,7 @@ body {
   line-height: 1.6;
 }
 
+/* 태그 */
 .tag-row {
   margin-top: 0.5rem;
   display: flex;
@@ -432,6 +646,87 @@ body {
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.9);
   border: 1px solid rgba(148, 163, 184, 0.5);
+}
+
+/* 좋아요/싫어요/조회수 정사각형 박스 */
+.glass-metric-row {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.glass-metric {
+  flex: 1;
+  min-width: 0;
+  border-radius: 12px;
+  padding: 0.45rem 0.3rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.76rem;
+}
+
+button.glass-metric {
+  cursor: pointer;
+  transition: transform 0.16s ease-out, box-shadow 0.16s ease-out,
+  background 0.16s ease-out;
+}
+
+button.glass-metric:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.95);
+}
+
+.glass-metric-emoji {
+  font-size: 1rem;
+  margin-bottom: 0.15rem;
+}
+
+.glass-metric-label {
+  opacity: 0.8;
+}
+
+.glass-metric-count {
+  margin-top: 0.1rem;
+  font-weight: 600;
+}
+
+/* 타입별 색 */
+.glass-metric--like {
+  border-color: rgba(52, 211, 153, 0.9);
+  color: #bbf7d0;
+}
+
+.glass-metric--dislike {
+  border-color: rgba(249, 115, 22, 0.9);
+  color: #fed7aa;
+}
+
+.glass-metric--view {
+  border-color: rgba(59, 130, 246, 0.9);
+  color: #bfdbfe;
+}
+
+/* 내가 누른 상태 강조 */
+.glass-metric--active {
+  background: radial-gradient(
+                  circle at 0% 0%,
+                  rgba(56, 189, 248, 0.2),
+                  transparent 55%
+  ),
+  rgba(15, 23, 42, 0.98);
+}
+
+
+/* 굳이 쓰진 않지만… */
+.glass-meta {
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 /* 푸터 영역 */
@@ -502,6 +797,7 @@ body {
     margin-top: 0.8rem;
   }
 }
+
 /* =========================
    Footer
    ========================= */
@@ -588,14 +884,15 @@ body {
     align-items: flex-start;
   }
 }
+
 /* =========================
    Main wrapper
    ========================= */
 .main {
-  flex: 1;                    /* ✅ 남는 세로 공간을 전부 main이 먹도록 */
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3rem;                  /* 원래 쓰던 간격 있으면 유지 */
+  gap: 3rem;
 }
 
 /* =========================
@@ -604,9 +901,7 @@ body {
 .reveal {
   opacity: 0;
   transform: translateY(40px) scale(0.98);
-  transition:
-          opacity 0.7s ease-out,
-          transform 0.7s ease-out;
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
 }
 
 .reveal--visible {
@@ -633,7 +928,11 @@ body {
 
 .story-inner--features {
   border-top: 1px solid rgba(30, 64, 175, 0.7);
-  background: radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.06), transparent 55%);
+  background: radial-gradient(
+                  circle at 100% 0,
+                  rgba(56, 189, 248, 0.06),
+                  transparent 55%
+  );
 }
 
 .story-layout {
@@ -646,7 +945,7 @@ body {
 /* 왼쪽 설명 영역 – 큰 화면에서는 sticky (애플 광고 느낌) */
 .story-left {
   position: sticky;
-  top: 90px; /* 헤더 아래쪽에 고정 */
+  top: 90px;
   align-self: flex-start;
 }
 
@@ -768,6 +1067,11 @@ body {
     position: static;
   }
 }
+
+/* =========================
+   Header Profile (우측 프로필)
+   ========================= */
+
 .nav-profile-wrap {
   position: relative;
   display: flex;
@@ -790,9 +1094,9 @@ body {
   outline-offset: 3px;
 }
 
-/* 아바타 동그라미 래퍼 - 지금 쓰고 있는 크기 유지 */
+/* 아바타 동그라미 래퍼 */
 .nav-profile-avatar-wrapper {
-  width: 30px;   /* 너가 맞춰둔 값으로 계속 사용해도 됨 */
+  width: 30px;
   height: 30px;
   border-radius: 999px;
   overflow: hidden;

@@ -92,3 +92,16 @@ export const toggleVideoReaction = async (videoNo, action) => {
     );
     return data;           // { likeCount, dislikeCount, myReaction }
 };
+
+export const getHomeSummary = async () => {
+    const { data } = await api.get("/videos/home-summary");
+    return data;
+};
+
+
+// ✅ 조회수 1 증가
+export const increaseVideoView = async (videoNo) => {
+    const { data } = await api.post(`/videos/${videoNo}/view`);
+    // data = { viewCount: number }
+    return data;
+};

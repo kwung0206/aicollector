@@ -1168,3 +1168,134 @@
     justify-content: flex-end;
   }
 }
+/* =========================
+   영상 삭제 확인 모달 (업로드 완료 모달 느낌)
+   ========================= */
+
+.video-delete-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background:
+          radial-gradient(circle at 0 0, rgba(248, 113, 113, 0.22), transparent 55%),
+          rgba(15, 23, 42, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  animation: video-delete-backdrop-fade 0.2s ease-out forwards;
+}
+
+@keyframes video-delete-backdrop-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.video-delete-modal {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 22px;
+  padding: 1.9rem 1.7rem 1.5rem;
+  background:
+          radial-gradient(circle at 0% 0%, rgba(248, 113, 113, 0.28), transparent 60%),
+          linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+  border: 1px solid rgba(248, 113, 113, 0.65);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.95);
+  text-align: center;
+  transform-origin: center;
+  animation: video-delete-modal-pop 0.22s ease-out forwards;
+}
+
+@keyframes video-delete-modal-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.video-delete-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 0.9rem;
+  border-radius: 999px;
+  background: rgba(248, 113, 113, 0.16);
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fecaca;
+  font-size: 1.6rem;
+}
+
+.video-delete-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #f9fafb;
+}
+
+.video-delete-desc {
+  margin: 0 0 1.2rem;
+  font-size: 0.86rem;
+  color: #e5e7eb;
+}
+
+.video-delete-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.video-delete-btn {
+  min-width: 120px;
+  border-radius: 999px;
+  padding: 0.6rem 1.4rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+  transition: transform 0.12s ease-out, filter 0.12s ease-out,
+  box-shadow 0.12s ease-out, background 0.12s ease-out, border-color 0.12s ease-out;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+    box-shadow: none;
+  }
+}
+
+.video-delete-btn--cancel {
+  background: rgba(15, 23, 42, 0.98);
+  border-color: rgba(75, 85, 99, 0.9);
+  color: #e5e7eb;
+
+  &:hover:not(:disabled) {
+    background: rgba(31, 41, 55, 0.98);
+    border-color: rgba(148, 163, 184, 0.9);
+  }
+}
+
+.video-delete-btn--danger {
+  background: linear-gradient(135deg, #f97373, #ef4444, #b91c1c);
+  color: #fef2f2;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 18px 46px rgba(15, 23, 42, 0.98);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.96);
+  }
+}

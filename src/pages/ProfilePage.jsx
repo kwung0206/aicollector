@@ -133,7 +133,11 @@ const AvatarSelectModal = ({
                             }
                             onClick={() => setSelected(opt.id)}
                         >
-                            <img src={opt.src} alt={opt.label} className="avatar-option-img" />
+                            <img
+                                src={opt.src}
+                                alt={opt.label}
+                                className="avatar-option-img"
+                            />
                             <span className="avatar-option-label">{opt.label}</span>
                         </button>
                     ))}
@@ -313,29 +317,39 @@ const VideoDetailModal = ({ open, video, onClose, onDeleted, onUpdated }) => {
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
 
+    // 🔴 삭제 확인 모달 상태
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
     useEffect(() => {
         if (open && video) {
             setTitleInput(video.title || "");
             setErrorMsg("");
             setSuccessMsg("");
+            setDeleteConfirmOpen(false); // 새로 열릴 때 항상 닫힘
         }
     }, [open, video]);
 
     useEffect(() => {
         if (!open) return;
         const onKey = (e) => {
-            if (e.key === "Escape") onClose();
+            if (e.key === "Escape") {
+                if (deleteConfirmOpen) {
+                    setDeleteConfirmOpen(false);
+                } else {
+                    onClose();
+                }
+            }
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, [open, onClose]);
+    }, [open, onClose, deleteConfirmOpen]);
 
     if (!open || !video) return null;
 
     const handleSaveTitle = async () => {
         const trimmed = titleInput.trim();
         setErrorMsg("");
-        setSuccessMsg("");   // ✅ 이전 메시지 초기화
+        setSuccessMsg(""); // ✅ 이전 메시지 초기화
 
         if (!trimmed) {
             setErrorMsg("제목을 입력해 주세요.");
@@ -350,7 +364,6 @@ const VideoDetailModal = ({ open, video, onClose, onDeleted, onUpdated }) => {
             setSaving(true);
             const updated = await updateVideoMeta(video.videoNo, { title: trimmed });
 
-            // ✅ 여기 문구 변경
             setSuccessMsg("제목이 저장되었습니다.");
 
             if (onUpdated) {
@@ -368,15 +381,8 @@ const VideoDetailModal = ({ open, video, onClose, onDeleted, onUpdated }) => {
         }
     };
 
-    const handleDelete = async () => {
-        if (
-            !window.confirm(
-                "정말 이 영상을 삭제하시겠습니까?\n삭제 후에는 되돌릴 수 없습니다."
-            )
-        ) {
-            return;
-        }
-
+    // 🔴 실제 삭제 실행 (window.confirm 사용 X)
+    const handleConfirmDelete = async () => {
         try {
             setDeleting(true);
             setErrorMsg("");
@@ -384,6 +390,7 @@ const VideoDetailModal = ({ open, video, onClose, onDeleted, onUpdated }) => {
             if (onDeleted) {
                 onDeleted(video.videoNo);
             }
+            setDeleteConfirmOpen(false);
             onClose();
         } catch (err) {
             console.error("영상 삭제 실패:", err);
@@ -409,105 +416,146 @@ const VideoDetailModal = ({ open, video, onClose, onDeleted, onUpdated }) => {
     const videoSrc = `${API_ROOT}/videos/${video.videoNo}/stream`;
 
     return (
-        <div className="video-modal-backdrop" onClick={onClose}>
-            <div className="video-modal" onClick={(e) => e.stopPropagation()}>
-                <header className="video-modal-header">
-                    <span
-                        className={`video-modal-status video-modal-status--${status.variant}`}
-                    >
-                        {status.label}
-                    </span>
-                    <button
-                        type="button"
-                        className="video-modal-close"
-                        onClick={onClose}
-                        aria-label="닫기"
-                    >
-                        ×
-                    </button>
-                </header>
+        <>
+            <div className="video-modal-backdrop" onClick={onClose}>
+                <div className="video-modal" onClick={(e) => e.stopPropagation()}>
+                    <header className="video-modal-header">
+                        <span
+                            className={`video-modal-status video-modal-status--${status.variant}`}
+                        >
+                            {status.label}
+                        </span>
+                        <button
+                            type="button"
+                            className="video-modal-close"
+                            onClick={onClose}
+                            aria-label="닫기"
+                        >
+                            ×
+                        </button>
+                    </header>
 
-                <div className="video-modal-body">
-                    <div className="video-modal-player-wrap">
-                        <video
-                            className="video-modal-player"
-                            src={videoSrc}
-                            controls
-                        />
+                    <div className="video-modal-body">
+                        <div className="video-modal-player-wrap">
+                            <video
+                                className="video-modal-player"
+                                src={videoSrc}
+                                controls
+                            />
+                        </div>
+
+                        <div className="video-modal-meta">
+                            <label className="video-modal-field">
+                                <span className="video-modal-label">제목</span>
+                                <input
+                                    type="text"
+                                    value={titleInput}
+                                    onChange={(e) => {
+                                        setTitleInput(e.target.value);
+                                        setErrorMsg("");
+                                        setSuccessMsg("");
+                                    }}
+                                    maxLength={255}
+                                />
+                            </label>
+
+                            {tags.length > 0 && (
+                                <div className="video-modal-tags">
+                                    {tags.map((t) => (
+                                        <span key={t} className="video-modal-tag">
+                                            #{t}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+
+                            <p className="video-modal-date">
+                                업로드: {formatDateTime(video.uploadDate)}
+                            </p>
+
+                            <div className="video-modal-stats">
+                                <span>조회수 {video.viewCount ?? 0}</span>
+                                <span>좋아요 {video.likeCount ?? 0}</span>
+                                <span>싫어요 {video.dislikeCount ?? 0}</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="video-modal-meta">
-                        <label className="video-modal-field">
-                            <span className="video-modal-label">제목</span>
-                            <input
-                                type="text"
-                                value={titleInput}
-                                onChange={(e) => {
-                                    setTitleInput(e.target.value);
-                                    setErrorMsg("");
-                                    setSuccessMsg("");
-                                }}
-                                maxLength={255}
-                            />
-                        </label>
+                    {errorMsg && <p className="video-modal-error">{errorMsg}</p>}
+                    {successMsg && !errorMsg && (
+                        <p className="video-modal-success">{successMsg}</p>
+                    )}
 
-                        {tags.length > 0 && (
-                            <div className="video-modal-tags">
-                                {tags.map((t) => (
-                                    <span key={t} className="video-modal-tag">
-                                        #{t}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
+                    <footer className="video-modal-footer">
+                        <button
+                            type="button"
+                            className="video-modal-btn video-modal-btn--danger"
+                            onClick={() => setDeleteConfirmOpen(true)}
+                            disabled={deleting}
+                        >
+                            {deleting ? "삭제 중..." : "영상 삭제"}
+                        </button>
+                        <div className="video-modal-footer-right">
+                            <button
+                                type="button"
+                                className="video-modal-btn"
+                                onClick={onClose}
+                                disabled={saving || deleting}
+                            >
+                                닫기
+                            </button>
+                            <button
+                                type="button"
+                                className="video-modal-btn video-modal-btn--primary"
+                                onClick={handleSaveTitle}
+                                disabled={saving || deleting}
+                            >
+                                {saving ? "저장 중..." : "제목 저장"}
+                            </button>
+                        </div>
+                    </footer>
+                </div>
+            </div>
 
-                        <p className="video-modal-date">
-                            업로드: {formatDateTime(video.uploadDate)}
+            {/* 🔴 삭제 확인 모달 (업로드 완료 모달 느낌) */}
+            {deleteConfirmOpen && (
+                <div
+                    className="video-delete-backdrop"
+                    onClick={() => !deleting && setDeleteConfirmOpen(false)}
+                >
+                    <div
+                        className="video-delete-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="video-delete-icon">⚠️</div>
+                        <h3 className="video-delete-title">영상 삭제</h3>
+                        <p className="video-delete-desc">
+                            이 영상을 정말 삭제하시겠어요?
+                            <br />
+                            삭제 후에는 되돌릴 수 없습니다.
                         </p>
-
-                        <div className="video-modal-stats">
-                            <span>조회수 {video.viewCount ?? 0}</span>
-                            <span>좋아요 {video.likeCount ?? 0}</span>
-                            <span>싫어요 {video.dislikeCount ?? 0}</span>
+                        <div className="video-delete-actions">
+                            <button
+                                type="button"
+                                className="video-delete-btn video-delete-btn--cancel"
+                                onClick={() => setDeleteConfirmOpen(false)}
+                                disabled={deleting}
+                            >
+                                취소
+                            </button>
+                            <button
+                                type="button"
+                                className="video-delete-btn video-delete-btn--danger"
+                                onClick={handleConfirmDelete}
+                                disabled={deleting}
+                            >
+                                {deleting ? "삭제 중..." : "삭제하기"}
+                            </button>
                         </div>
                     </div>
                 </div>
-
-                {errorMsg && <p className="video-modal-error">{errorMsg}</p>}
-                {successMsg && !errorMsg && (
-                    <p className="video-modal-success">{successMsg}</p>
-                )}
-
-                <footer className="video-modal-footer">
-                    <button
-                        type="button"
-                        className="video-modal-btn video-modal-btn--danger"
-                        onClick={handleDelete}
-                        disabled={deleting}
-                    >
-                        {deleting ? "삭제 중..." : "영상 삭제"}
-                    </button>
-                    <div className="video-modal-footer-right">
-                        <button
-                            type="button"
-                            className="video-modal-btn"
-                            onClick={onClose}
-                            disabled={saving || deleting}
-                        >
-                            닫기
-                        </button>
-                        <button
-                            type="button"
-                            className="video-modal-btn video-modal-btn--primary"
-                            onClick={handleSaveTitle}
-                            disabled={saving || deleting}
-                        >
-                            {saving ? "저장 중..." : "제목 저장"}
-                        </button>
-                    </div>
-                </footer>
-            </div>
-        </div>
+            )}
+        </>
     );
 };
 
@@ -612,7 +660,9 @@ const ProfilePage = () => {
             setNickCheckStatus(ok ? "ok" : "taken");
             setNickCheckMessage(
                 res?.message ||
-                (ok ? "사용 가능한 닉네임입니다." : "이미 사용 중인 닉네임입니다.")
+                (ok
+                    ? "사용 가능한 닉네임입니다."
+                    : "이미 사용 중인 닉네임입니다.")
             );
         } catch (err) {
             console.error("닉네임 중복 검사 실패:", err);
@@ -869,7 +919,9 @@ const ProfilePage = () => {
                                             )}
 
                                             {nickError && (
-                                                <p className="profile-nick-error">{nickError}</p>
+                                                <p className="profile-nick-error">
+                                                    {nickError}
+                                                </p>
                                             )}
                                             {nickSaveMessage && !nickError && (
                                                 <p className="profile-nick-success">
@@ -988,7 +1040,9 @@ const ProfilePage = () => {
                                                         {v.title}
                                                     </h4>
                                                     <p className="profile-video-date">
-                                                        업로드: {formatDateTime(v.uploadDate)}
+                                                        업로드: {formatDateTime(
+                                                        v.uploadDate
+                                                    )}
                                                     </p>
 
                                                     {tags.length > 0 && (
@@ -1005,9 +1059,15 @@ const ProfilePage = () => {
                                                     )}
 
                                                     <div className="profile-video-meta">
-                                                        <span>조회수 {v.viewCount ?? 0}</span>
-                                                        <span>좋아요 {v.likeCount ?? 0}</span>
-                                                        <span>싫어요 {v.dislikeCount ?? 0}</span>
+                                                        <span>
+                                                            조회수 {v.viewCount ?? 0}
+                                                        </span>
+                                                        <span>
+                                                            좋아요 {v.likeCount ?? 0}
+                                                        </span>
+                                                        <span>
+                                                            싫어요 {v.dislikeCount ?? 0}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </article>
