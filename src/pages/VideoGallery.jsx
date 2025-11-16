@@ -93,7 +93,20 @@ const VideoDetailModal = ({
                     <div>
                         <p className="gallery-modal-eyebrow">영상 상세 보기</p>
                         <h2 className="gallery-modal-title">{video.title}</h2>
+
+                        {/* 🔹 제목 아래에 조회수 + 업로드 날짜 */}
+                        <div className="video-meta-stats gallery-modal-header-stats">
+      <span className="video-meta-view">
+        조회수 {video.viewCount}
+      </span>
+                            {video.uploadDate && (
+                                <span className="video-meta-date">
+          업로드 {formatDate(video.uploadDate)}
+        </span>
+                            )}
+                        </div>
                     </div>
+
                     <button
                         type="button"
                         className="gallery-modal-close"
@@ -103,6 +116,7 @@ const VideoDetailModal = ({
                         <FaTimes />
                     </button>
                 </header>
+
 
                 <div className="gallery-modal-body">
                     {/* ▶ 왼쪽: 영상 */}
@@ -119,7 +133,6 @@ const VideoDetailModal = ({
                     <div className="gallery-modal-meta">
                         {/* 반응 + 조회수/날짜 */}
                         <div className="gallery-modal-field">
-                            <span className="gallery-modal-label">반응</span>
                             <div className="video-meta-actions">
                                 <button
                                     type="button"
@@ -143,18 +156,8 @@ const VideoDetailModal = ({
                                 </button>
                                 <span className="video-meta-count">{rs.dislikeCount}</span>
                             </div>
-
-                            <div className="video-meta-stats">
-                <span className="video-meta-view">
-                  조회수 {video.viewCount}
-                </span>
-                                {video.uploadDate && (
-                                    <span className="video-meta-date">
-                    업로드 {formatDate(video.uploadDate)}
-                  </span>
-                                )}
-                            </div>
                         </div>
+
 
                         {/* 설명 */}
                         {video.description && (
@@ -265,7 +268,7 @@ const VideoGallery = () => {
                         next[v.videoNo] = {
                             likeCount: v.likeCount ?? 0,
                             dislikeCount: v.dislikeCount ?? 0,
-                            myReaction: null,
+                            myReaction: v.myReaction ? v.myReaction.toLowerCase() : null, // ✅
                         };
                     }
                 });

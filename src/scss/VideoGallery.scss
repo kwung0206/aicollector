@@ -352,6 +352,26 @@
   margin-left: 0.9rem;
   margin-right: 0.1rem;
 }
+/* 활성화(눌린) 상태일 때 공통 배경 */
+.video-like-btn.is-active,
+.video-dislike-btn.is-active {
+  background: transparent;   /* 🔹 배경 제거 */
+  border-radius: 0;          /* 🔹 동그라미 제거 */
+  padding: 0.15rem;          /* 🔹 기본 padding과 동일하게 */
+  box-shadow: none;          /* 🔹 그림자 제거 */
+}
+
+/* 이미 있는 색 강조 + 빛 퍼지는 효과 유지 */
+.video-like-btn.is-active svg {
+  color: #38bdf8;
+  text-shadow: 0 0 16px rgba(56, 189, 248, 0.9);
+}
+
+.video-dislike-btn.is-active svg {
+  color: #f97316;
+  text-shadow: 0 0 16px rgba(249, 115, 22, 0.9);
+}
+
 
 /* 숫자 공통 */
 .video-meta-count {
@@ -517,9 +537,9 @@
 
 /* 본문: 왼쪽은 영상, 오른쪽은 정보 */
 .gallery-modal-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.2fr);
-  gap: 1.4rem;
+  display: flex;             /* grid → flex */
+  flex-direction: column;    /* 위: 영상, 아래: 메타 */
+  gap: 1.1rem;
   min-height: 0;
 }
 
@@ -531,11 +551,12 @@
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
 }
 
+/* 영상은 폭 100% + 비율 유지 */
 .gallery-modal-player {
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
-  max-height: min(52vh, 520px);   /* 🔹 모니터가 아무리 커도 52vh를 넘지 않음 */
+  max-height: min(52vh, 520px);
   display: block;
   object-fit: contain;
 }

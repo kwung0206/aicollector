@@ -82,14 +82,13 @@ export const getPublicVideos = async ({
     return data; // Spring Page 객체 그대로
 };
 
-/**
- * ✅ 좋아요/싫어요 토글
- * action: "LIKE" | "DISLIKE"
- * 백엔드 응답: { videoNo, likeCount, dislikeCount, myReaction }
- */
 export const toggleVideoReaction = async (videoNo, action) => {
-    const { data } = await api.post(`${VIDEO_BASE}/${videoNo}/reaction`, null, {
-        params: { action },
-    });
-    return data;
+    const { data } = await api.patch(
+        `/videos/${videoNo}/reaction`,
+        null,                 // ← body 없음
+        {
+            params: { action }, // ← ?action=LIKE 또는 ?action=DISLIKE
+        }
+    );
+    return data;           // { likeCount, dislikeCount, myReaction }
 };
