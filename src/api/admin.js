@@ -9,7 +9,6 @@ export const loginAdmin = async (credentials) => {
 
     const { data } = await api.post("/admin/login", body, {
         withCredentials: true,
-        // 혹시 모를 Authorization 덮어쓰기 방지용 (안 넣어도 되지만 안전하게)
         headers: {
             Authorization: "",
         },
@@ -36,6 +35,21 @@ export const fetchAdminUsers = async () => {
 
 export const fetchBlockedVideos = async () => {
     const { data } = await api.get("/admin/videos/blocked", {
+        headers: authHeader(),
+    });
+    return data;
+};
+
+// ⭐ PATCH → POST 로 변경
+export const approveBlockedVideo = async (videoNo) => {
+    const { data } = await api.post(`/admin/videos/${videoNo}/approve`, null, {
+        headers: authHeader(),
+    });
+    return data;
+};
+
+export const deleteBlockedVideo = async (videoNo) => {
+    const { data } = await api.delete(`/admin/videos/${videoNo}`, {
         headers: authHeader(),
     });
     return data;

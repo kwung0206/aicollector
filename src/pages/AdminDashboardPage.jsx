@@ -2,7 +2,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../scss/AdminDashboard.scss";
-import { fetchAdminUsers, fetchBlockedVideos } from "../api/admin";
+import {
+    fetchAdminUsers,
+    fetchBlockedVideos,
+    approveBlockedVideo,
+    deleteBlockedVideo,
+} from "../api/admin";
 
 const AdminDashboardPage = () => {
     const navigate = useNavigate();
@@ -12,10 +17,14 @@ const AdminDashboardPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    // 🔹 모달용 상태
+    const [selectedVideo, setSelectedVideo] = useState(null);
+    const [modalLoading, setModalLoading] = useState(false);
+    const [modalError, setModalError] = useState("");
+
     useEffect(() => {
         const token = localStorage.getItem("adminToken");
         if (!token) {
-            // 토큰 없으면 다시 로그인으로
             navigate("/admin");
             return;
         }
@@ -35,7 +44,6 @@ const AdminDashboardPage = () => {
             } catch (e) {
                 console.error(e);
                 setError("데이터를 불러오는 중 오류가 발생했습니다.");
-                // 401 등의 경우 다시 로그인으로 보낼 수도 있음
             } finally {
                 setLoading(false);
             }
@@ -47,6 +55,56 @@ const AdminDashboardPage = () => {
     const handleLogout = () => {
         localStorage.removeItem("adminToken");
         navigate("/admin");
+    };
+
+    // 🔹 모달 닫기
+    const closeModal = () => {
+        setSelectedVideo(null);
+        setModalError("");
+        setModalLoading(false);
+    };
+
+    // 🔹 승인 (차단 해제)
+    const handleApprove = async () => {
+        if (!selectedVideo) return;
+        if (!window.confirm("이 영상을 승인(차단 해제)하시겠습니까?")) return;
+
+        try {
+            setModalLoading(true);
+            setModalError("");
+            await approveBlockedVideo(selectedVideo.videoNo);
+            // 목록에서 제거
+            setBlockedVideos(prev =>
+                prev.filter(v => v.videoNo !== selectedVideo.videoNo)
+            );
+            closeModal();
+        } catch (e) {
+            console.error(e);
+            setModalError("영상 승인 중 오류가 발생했습니다.");
+        } finally {
+            setModalLoading(false);
+        }
+    };
+
+    // 🔹 삭제
+    const handleDelete = async () => {
+        if (!selectedVideo) return;
+        if (!window.confirm("정말 이 영상을 완전히 삭제하시겠습니까?")) return;
+
+        try {
+            setModalLoading(true);
+            setModalError("");
+            await deleteBlockedVideo(selectedVideo.videoNo);
+            setBlockedVideos(prev =>
+                prev.filter(v => v.videoNo !== selectedVideo.videoNo)
+            );
+            closeModal();
+        } catch (e) {
+            console.error(e);
+            setModalError("영상 삭제 중 오류가 발생했습니다.");
+        } finally {
+            setModalLoading(false);
+        }
     };
 
     return (
@@ -126,7 +184,11 @@ const AdminDashboardPage = () => {
                                     </thead>
                                     <tbody>
                                     {blockedVideos.map((v) => (
-                                        <tr key={v.videoNo || v.id}>
+                                        <tr
+                                            key={v.videoNo || v.id}
+                                            className="admin-table-row-clickable"
+                                            onClick={() => setSelectedVideo(v)}
+                                        >
                                             <td>{v.videoNo}</td>
                                             <td>{v.title}</td>
                                             <td>{v.uploaderNickname || v.uploaderId}</td>
@@ -139,6 +201,104 @@ const AdminDashboardPage = () => {
                             )}
                         </div>
                     </section>
+                </div>
+            )}
+
+            {/* 🔹 차단 영상 상세 모달 */}
+            {selectedVideo && (
+                <div className="admin-modal-backdrop" onClick={closeModal}>
+                    <div
+                        className="admin-modal"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <header className="admin-modal-header">
+                            <h2>차단된 영상 상세</h2>
+                            <button
+                                className="admin-modal-close"
+                                onClick={closeModal}
+                            >
+                                ×
+                            </button>
+                        </header>
+
+                        <div className="admin-modal-body">
+                            {modalError && (
+                                <div className="admin-modal-error">{modalError}</div>
+                            )}
+
+                            {/* 🔹 메타데이터 */}
+                            <dl className="admin-modal-detail">
+                                <div>
+                                    <dt>영상 ID</dt>
+                                    <dd>{selectedVideo.videoNo}</dd>
+                                </div>
+                                <div>
+                                    <dt>제목</dt>
+                                    <dd>{selectedVideo.title}</dd>
+                                </div>
+                                <div>
+                                    <dt>업로더 닉네임</dt>
+                                    <dd>{selectedVideo.uploaderNickname || "-"}</dd>
+                                </div>
+                                <div>
+                                    <dt>업로더 ID</dt>
+                                    <dd>{selectedVideo.uploaderId || "-"}</dd>
+                                </div>
+                                <div>
+                                    <dt>업로드일</dt>
+                                    <dd>{selectedVideo.createdAt?.slice(0, 19) || "-"}</dd>
+                                </div>
+                                <div>
+                                    <dt>조회수</dt>
+                                    <dd>{selectedVideo.viewCount ?? 0}</dd>
+                                </div>
+
+                                {selectedVideo.blockReason && (
+                                    <div>
+                                        <dt>차단 사유</dt>
+                                        <dd>{selectedVideo.blockReason}</dd>
+                                    </div>
+                                )}
+                            </dl>
+
+                            {/* 🔹 영상 미리보기 */}
+                            <div className="admin-modal-preview">
+                                <h3>영상 미리보기</h3>
+                                <video
+                                    className="admin-modal-video"
+                                    controls
+                                    // 백엔드 스트리밍 엔드포인트 사용
+                                    src={`/api/videos/${selectedVideo.videoNo}/stream`}
+                                >
+                                    브라우저에서 video 태그를 지원하지 않습니다.
+                                </video>
+                            </div>
+                        </div>
+
+                        <footer className="admin-modal-footer">
+                            <button
+                                className="admin-modal-btn secondary"
+                                onClick={closeModal}
+                                disabled={modalLoading}
+                            >
+                                닫기
+                            </button>
+                            <button
+                                className="admin-modal-btn"
+                                onClick={handleApprove}
+                                disabled={modalLoading}
+                            >
+                                승인 (차단 해제)
+                            </button>
+                            <button
+                                className="admin-modal-btn danger"
+                                onClick={handleDelete}
+                                disabled={modalLoading}
+                            >
+                                삭제
+                            </button>
+                        </footer>
+                    </div>
                 </div>
             )}
         </div>
