@@ -12,10 +12,10 @@ import {
 const avatarOptions = [
     { id: "blue",   label: "블루", src: "/avatars/avatar-blue.svg" },
     { id: "purple", label: "퍼플", src: "/avatars/avatar-purple.svg" },
-    { id: "orange", label: "오렌지",    src: "/avatars/avatar-orange.svg" },
-    { id: "green",  label: "그린",    src: "/avatars/avatar-green.svg" },
-    { id: "pink",   label: "핑크",    src: "/avatars/avatar-pink.svg" },
-    { id: "mono",   label: "화이트",  src: "/avatars/avatar-mono.svg" },
+    { id: "orange", label: "오렌지", src: "/avatars/avatar-orange.svg" },
+    { id: "green",  label: "그린", src: "/avatars/avatar-green.svg" },
+    { id: "pink",   label: "핑크", src: "/avatars/avatar-pink.svg" },
+    { id: "mono",   label: "화이트", src: "/avatars/avatar-mono.svg" },
 ];
 
 const SignUpForm = () => {
@@ -197,9 +197,12 @@ const SignUpForm = () => {
             if (!firstErrorEl && nicknameRef.current) firstErrorEl = nicknameRef.current;
         }
 
-        // 비밀번호
+        // 비밀번호 (🔴 여기 8자리 이상 조건 추가)
         if (!password.trim()) {
             errors.password = "비밀번호를 입력해 주세요.";
+            if (!firstErrorEl && passwordRef.current) firstErrorEl = passwordRef.current;
+        } else if (password.trim().length < 8) {
+            errors.password = "비밀번호는 최소 8자리 이상이어야 합니다.";
             if (!firstErrorEl && passwordRef.current) firstErrorEl = passwordRef.current;
         }
 
@@ -473,7 +476,7 @@ const SignUpForm = () => {
 
                         {/* 비밀번호 */}
                         <div className="form-field">
-                            <label htmlFor="signup-password">비밀번호</label>
+                            <label htmlFor="signup-password">비밀번호 (8자리 이상)</label>
                             <input
                                 id="signup-password"
                                 type="password"
@@ -481,6 +484,7 @@ const SignUpForm = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 ref={passwordRef}
                                 autoComplete="new-password"
+                                minLength={8}        // 🔸 브라우저 기본 검증도 8자리 이상
                             />
                             {fieldErrors.password && (
                                 <p
