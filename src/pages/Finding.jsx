@@ -471,7 +471,7 @@ const Finding = () => {
                         <div className="finding-prompt-body">
                             <textarea
                                 className="finding-prompt-input"
-                                placeholder="예) GPT와 RAG의 차이를 직관적으로 설명해주는 강의를 찾고 싶어요."
+                                placeholder="예) 아주 멋진 성에 살고 있는 공주가 인사하는 영상을 만들고 싶어"
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
                                 onKeyDown={handleKeyDown}

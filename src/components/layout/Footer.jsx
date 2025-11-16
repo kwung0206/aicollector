@@ -1,4 +1,5 @@
 // src/components/layout/Footer.jsx
+import { Link } from "react-router-dom";   // ✅ 추가
 
 const Footer = () => {
     const year = new Date().getFullYear();
@@ -21,17 +22,24 @@ const Footer = () => {
                     </p>
                 </div>
 
-                {/* 오른쪽: 링크들 (나중에 진짜 링크로 교체) */}
+                {/* 오른쪽: 링크들 */}
                 <div className="footer-links">
-                    <a href="#" className="footer-link">
+                    <a
+                        href="https://github.com/kwung0206" // 실제 깃허브 주소로 바꿔도 됨
+                        className="footer-link"
+                        target="_blank"
+                        rel="noreferrer"
+                    >
                         GitHub
                     </a>
-                    <a href="#" className="footer-link">
+                    <a href="mailto:your-email@example.com" className="footer-link">
                         문의
                     </a>
-                    <a href="#" className="footer-link">
+
+                    {/* ✅ 개인정보처리방침: 내부 라우트 */}
+                    <Link to="/privacy" className="footer-link">
                         개인정보처리방침
-                    </a>
+                    </Link>
                 </div>
             </div>
         </footer>

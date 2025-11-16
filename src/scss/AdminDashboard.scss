@@ -1,0 +1,120 @@
+/* src/scss/AdminDashboard.scss */
+
+.admin-dash {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+  font-family: "Noto Sans KR", sans-serif;
+  color: #e5e7eb;
+}
+
+.admin-dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.8rem;
+}
+
+.admin-dash-title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.admin-dash-sub {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.admin-dash-logout {
+  border: 1px solid #4b5563;
+  background: transparent;
+  color: #e5e7eb;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.admin-dash-logout:hover {
+  background: #111827;
+}
+
+.admin-dash-message,
+.admin-dash-error,
+.admin-dash-empty {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.admin-dash-error {
+  color: #fecaca;
+}
+
+.admin-dash-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.admin-card {
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 18px;
+  padding: 1.4rem 1.2rem;
+  border: 1px solid #1f2937;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
+
+.admin-card-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.2rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: rgba(34, 211, 238, 0.15);
+  color: #22d3ee;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.admin-table thead th {
+  text-align: left;
+  padding: 0.5rem 0.4rem;
+  border-bottom: 1px solid #374151;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.admin-table tbody td {
+  padding: 0.45rem 0.4rem;
+  border-bottom: 1px solid #111827;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+@media (max-width: 900px) {
+  .admin-dash-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,196 @@
+/* src/scss/AdminLogin.scss */
+
+.admin-login {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  font-family: "Noto Sans KR", sans-serif;
+  background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+  color: var(--text-main);
+}
+
+.admin-login-inner {
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+  gap: 2.5rem;
+}
+
+/* 왼쪽 영역 */
+.admin-login-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.admin-login-eyebrow {
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+}
+
+.admin-login-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e5e7eb;
+}
+
+.admin-login-desc {
+  margin: 0.4rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* 오른쪽 로그인 카드 */
+.admin-login-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.admin-login-card {
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 18px;
+  padding: 2rem 1.8rem;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55);
+}
+
+.admin-login-card-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+/* 에러 */
+.admin-login-error {
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.6rem;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  color: #fecaca;
+}
+
+/* 폼 */
+.admin-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-login-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-login-form label {
+  font-size: 0.85rem;
+  color: #e5e7eb;
+}
+
+.admin-login-form input {
+  border-radius: 0.7rem;
+  border: 1px solid #4b5563;
+  background: #020617;
+  color: #e5e7eb;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.admin-login-form input::placeholder {
+  color: #6b7280;
+}
+
+.admin-login-form input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.4);
+}
+
+/* 비밀번호 보기 버튼 */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 2.3rem;
+}
+
+.pw-toggle-btn {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+}
+
+/* 제출 버튼 */
+.admin-login-submit {
+  margin-top: 0.5rem;
+  width: 100%;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+  color: #020617;
+  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+
+.admin-login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 25px rgba(59, 130, 246, 0.45);
+}
+
+.admin-login-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.admin-login-notice {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+  .admin-login-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-login-left {
+    text-align: center;
+    align-items: center;
+  }
+
+  .admin-login-right {
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+  }
+}

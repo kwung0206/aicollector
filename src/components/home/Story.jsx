@@ -126,7 +126,7 @@ const Story = () => {
                                     필터링합니다. 신고 시스템과 함께 AI 검증을 병행하여,
                                     <br />
                                     <strong>“안전하게 공유할 수 있는 AI 영상 공간”</strong>이 되도록
-                                    설계할 예정입니다.
+                                    설계하였습니다.
                                 </p>
                             </article>
                         </ScrollReveal>

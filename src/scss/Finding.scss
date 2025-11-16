@@ -307,6 +307,9 @@
   border-color: transparent;
   box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.8);
   transform: translateY(-1px);
+
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 /* 결과 스크롤 영역 */
@@ -524,7 +527,8 @@
 
 /* 결과 없음 */
 .finding-empty {
-  margin-top: 0.4rem;
+  /* 🔽 가운데 정렬 위해 margin 전체 재설정 */
+  margin: auto 0;              /* 위·아래 auto → 세로 중앙 */
   padding: 1.4rem 0.6rem;
   text-align: center;
   font-size: 0.86rem;
@@ -535,9 +539,11 @@
   }
 }
 
+/* 필요하면 초기 상태용 클래스는 그대로 둬도 됨 */
 .finding-empty--initial {
   color: #9ca3af;
 }
+
 
 @keyframes vu-page-in {
   0% {

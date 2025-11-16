@@ -170,12 +170,15 @@ body {
   transition: all 0.18s ease-out;
   text-decoration: none;
   outline: none;
+  font-weight: 400;         /* 기본은 보통 굵기 */
 }
 
-.nav-link:hover {
-  background: rgba(31, 41, 55, 0.8);
-  color: #e5e7eb;
+.nav-link--active {
+  background: linear-gradient(135deg, #38bdf8, #a855f7);
+  color: #0b1120;
+  font-weight: 700;         /* ✅ 선택된 버튼은 더 굵게 */
 }
+
 
 .nav-link--active {
   background: linear-gradient(135deg, #38bdf8, #a855f7);
