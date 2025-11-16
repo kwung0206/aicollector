@@ -508,8 +508,9 @@
 
 .signup-form .login-card {
   max-width: 480px;
-  padding-bottom: 2.2rem;
+  padding-bottom: 3rem;   // 기존 2.2rem → 3rem 정도로 여유
 }
+
 
 /* 회원 정보 입력 단계 - 회원가입 완료 버튼을 조금 아래로 */
 .signup-form .signup-submit {
@@ -708,28 +709,45 @@
 }
 
 .profile-avatars {
+  position: relative;
+  z-index: 2;  /* 🔹 혹시 모를 덮임 방지 */
   display: grid;
-  grid-template-columns: repeat(3, 70px);
-  justify-content: center;
-  column-gap: 2.2rem;
-  row-gap: 2rem;
-  margin-top: 0.8rem;
+  grid-template-columns: repeat(3, minmax(70px, 1fr));
+  justify-items: center;
+  column-gap: 2rem;
+  row-gap: 2.6rem;
+  margin-top: 1rem;
+  padding-bottom: 0.6rem;
 }
+
+
 
 .avatar-option {
   position: relative;
-  width: 65px;
-  height: 65px;
+  z-index: 2; /* 🔹 클릭 잘 되도록 위로 */
+  width: 72px;
+  height: 72px;
   border-radius: 999px;
-  border: 1px solid rgba(55, 65, 81, 0.9);
+  border: 2px solid rgba(55, 65, 81, 0.9);   /* 기본은 얇은 회색 */
   background: rgba(15, 23, 42, 1);
   cursor: pointer;
   padding: 0;
   outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition:
           transform 0.15s ease-out,
           box-shadow 0.15s ease-out,
-          border-color 0.15s ease-out;
+          border-color 0.15s ease-out,
+          background 0.15s ease-out;
+}
+
+.avatar-img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  pointer-events: none;  /* 🔹 이미지가 클릭 이벤트 먹지 않게 */
 }
 
 .avatar-option:hover {
@@ -740,13 +758,20 @@
 
 .avatar-option--selected {
   border-color: #a855f7;
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.9);
-  transform: translateY(-2px) scale(1.02);
+  background:
+          radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
+          radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.25), transparent 60%),
+          rgba(15, 23, 42, 0.98);
+  box-shadow:
+          0 0 0 1px rgba(168, 85, 247, 0.7),
+          0 0 22px rgba(168, 85, 247, 0.9);
+  transform: translateY(-2px) scale(1.03);
 }
+
 
 .avatar-label {
   position: absolute;
-  bottom: -1.1rem;
+  bottom: -1.2rem;
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.7rem;
@@ -810,4 +835,10 @@ select:-webkit-autofill:focus {
   -webkit-text-fill-color: #f9fafb !important;
   color: #f9fafb !important;
   transition: background-color 9999s ease-out 0s;
+}
+/* 실제 SVG 이미지 크기/정렬 */
+
+.signup-form .login-card {
+  max-width: 480px;
+  padding-bottom: 3rem;
 }
