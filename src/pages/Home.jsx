@@ -9,6 +9,7 @@ import {
     increaseVideoView,
 } from "../api/video";
 import { FaThumbsUp, FaThumbsDown, FaTimes } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 
 const ROTATE_MS = 6000;
 const STREAM_BASE = "/api/videos";
@@ -16,6 +17,9 @@ const HOME_REACTION_KEY = "homeReactions"; // ✅ 홈 전용 로컬스토리지 
 
 const Home = () => {
     const navigate = useNavigate();
+    const auth = useAuth();
+    const user = auth?.user;
+    const isLoggedIn = !!user;
 
     const goVideos = () => navigate("/videos");
     const goUpload = () => navigate("/videos/upload");
@@ -59,7 +63,9 @@ const Home = () => {
                         next[v.videoNo] = {
                             likeCount: v.likeCount ?? 0,
                             dislikeCount: v.dislikeCount ?? 0,
-                            myReaction: v.myReaction ? v.myReaction.toLowerCase() : null,
+                            myReaction: v.myReaction
+                                ? v.myReaction.toLowerCase()
+                                : null,
                         };
                     };
 
@@ -152,6 +158,13 @@ const Home = () => {
 
     // 👍 / 👎 토글
     const handleReaction = async (videoNo, type) => {
+        // 🔒 비로그인 시 좋아요/싫어요 막기
+        if (!isLoggedIn) {
+            // 필요하면 안내 메시지
+            // alert("좋아요/싫어요는 로그인 후 이용 가능합니다.");
+            return;
+        }
+
         try {
             const action = type === "like" ? "LIKE" : "DISLIKE";
             const data = await toggleVideoReaction(videoNo, action);
@@ -170,7 +183,10 @@ const Home = () => {
 
                 // ✅ 홈 좋아요/싫어요 상태를 localStorage에 저장
                 try {
-                    localStorage.setItem(HOME_REACTION_KEY, JSON.stringify(next));
+                    localStorage.setItem(
+                        HOME_REACTION_KEY,
+                        JSON.stringify(next)
+                    );
                 } catch (e) {
                     console.error("홈 리액션 상태 저장 실패", e);
                 }
@@ -216,7 +232,9 @@ const Home = () => {
                     if (!prev) return prev;
 
                     const patch = (v) =>
-                        v && v.videoNo === currentModalVideoNo ? { ...v, viewCount } : v;
+                        v && v.videoNo === currentModalVideoNo
+                            ? { ...v, viewCount }
+                            : v;
 
                     return {
                         ...prev,
@@ -276,8 +294,8 @@ const Home = () => {
                     <p className="hero-desc">
                         다양한 생성형 AI로 만든 영상
                         <br />
-                        불편하게 인터넷을 찾아 다니지 말고, 여러 사용자들이 만든 영상들을
-                        감상하고,
+                        불편하게 인터넷을 찾아 다니지 말고, 여러 사용자들이 만든
+                        영상들을 감상하고,
                         <br />
                         무료로 다운로드 받으세요.
                     </p>
@@ -303,17 +321,21 @@ const Home = () => {
                     <div className="hero-stats">
                         <div className="stat">
                             <span className="stat-value">{totalVideosLabel}</span>
-                            <span className="stat-label">등록된 AI 관련 영상</span>
+                            <span className="stat-label">
+                                등록된 AI 관련 영상
+                            </span>
                         </div>
                         <div className="stat">
                             <span className="stat-value">50+</span>
                             <span className="stat-label">
-                카테고리(자연 · 게임 · 우주 등)
-              </span>
+                                카테고리(자연 · 게임 · 우주 등)
+                            </span>
                         </div>
                         <div className="stat">
                             <span className="stat-value">파인딩</span>
-                            <span className="stat-label">AI 기반 자동 추천</span>
+                            <span className="stat-label">
+                                AI 기반 자동 추천
+                            </span>
                         </div>
                     </div>
                 </section>
@@ -322,12 +344,14 @@ const Home = () => {
                 <section className="hero-right">
                     <div className="glass-card">
                         <div className="glass-header">
-              <span className={rankPillClass}>
-                {currentVideo ? currentVideo.badge : "추천 준비 중"}
-              </span>
+                            <span className={rankPillClass}>
+                                {currentVideo
+                                    ? currentVideo.badge
+                                    : "추천 준비 중"}
+                            </span>
                             <span className="pill pill-ai">
-                {currentVideo ? "AI 기반 큐레이션" : "AI TAG"}
-              </span>
+                                {currentVideo ? "AI 기반 큐레이션" : "AI TAG"}
+                            </span>
                         </div>
 
                         <div className="glass-main">
@@ -335,7 +359,9 @@ const Home = () => {
                             <button
                                 type="button"
                                 className="thumbnail-button"
-                                onClick={() => currentVideo && openModal(currentVideo)}
+                                onClick={() =>
+                                    currentVideo && openModal(currentVideo)
+                                }
                                 disabled={!currentVideo}
                             >
                                 {currentVideo ? (
@@ -347,7 +373,9 @@ const Home = () => {
                                             playsInline
                                             preload="metadata"
                                         />
-                                        <div className="thumbnail-play-icon">▶</div>
+                                        <div className="thumbnail-play-icon">
+                                            ▶
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="thumbnail-skeleton">
@@ -367,11 +395,16 @@ const Home = () => {
 
                                 {currentVideo && (
                                     <div className="tag-row">
-                                        {(currentVideo.tags || []).slice(0, 4).map((t) => (
-                                            <span key={t} className="tag">
-                        #{t}
-                      </span>
-                                        ))}
+                                        {(currentVideo.tags || [])
+                                            .slice(0, 4)
+                                            .map((t) => (
+                                                <span
+                                                    key={t}
+                                                    className="tag"
+                                                >
+                                                    #{t}
+                                                </span>
+                                            ))}
                                     </div>
                                 )}
                             </div>
@@ -403,34 +436,61 @@ const Home = () => {
                                             <button
                                                 type="button"
                                                 className={
-                                                    "video-like-btn" + (isLiked ? " is-active" : "")
+                                                    "video-like-btn" +
+                                                    (isLiked
+                                                        ? " is-active"
+                                                        : "") +
+                                                    (!isLoggedIn
+                                                        ? " is-disabled"
+                                                        : "")
                                                 }
-                                                onClick={() =>
-                                                    handleReaction(currentVideo.videoNo, "like")
-                                                }
+                                                disabled={!isLoggedIn}
+                                                onClick={() => {
+                                                    if (!isLoggedIn) return;
+                                                    handleReaction(
+                                                        currentVideo.videoNo,
+                                                        "like"
+                                                    );
+                                                }}
                                                 aria-label="좋아요"
                                             >
                                                 <FaThumbsUp />
                                             </button>
-                                            <span className="video-meta-count">{likeCount}</span>
+                                            <span className="video-meta-count">
+                                                {likeCount}
+                                            </span>
 
                                             <button
                                                 type="button"
                                                 className={
-                                                    "video-dislike-btn" + (isDisliked ? " is-active" : "")
+                                                    "video-dislike-btn" +
+                                                    (isDisliked
+                                                        ? " is-active"
+                                                        : "") +
+                                                    (!isLoggedIn
+                                                        ? " is-disabled"
+                                                        : "")
                                                 }
-                                                onClick={() =>
-                                                    handleReaction(currentVideo.videoNo, "dislike")
-                                                }
+                                                disabled={!isLoggedIn}
+                                                onClick={() => {
+                                                    if (!isLoggedIn) return;
+                                                    handleReaction(
+                                                        currentVideo.videoNo,
+                                                        "dislike"
+                                                    );
+                                                }}
                                                 aria-label="싫어요"
                                             >
                                                 <FaThumbsDown />
                                             </button>
-                                            <span className="video-meta-count">{dislikeCount}</span>
+                                            <span className="video-meta-count">
+                                                {dislikeCount}
+                                            </span>
                                         </div>
 
                                         <div className="glass-stats-view">
-                                            조회수 {currentVideo.viewCount ?? 0}
+                                            조회수{" "}
+                                            {currentVideo.viewCount ?? 0}
                                         </div>
                                     </div>
                                 )}
@@ -449,8 +509,10 @@ const Home = () => {
                     (() => {
                         const rs =
                             reactionState[selectedVideo.videoNo] || {
-                                likeCount: selectedVideo.likeCount ?? 0,
-                                dislikeCount: selectedVideo.dislikeCount ?? 0,
+                                likeCount:
+                                    selectedVideo.likeCount ?? 0,
+                                dislikeCount:
+                                    selectedVideo.dislikeCount ?? 0,
                                 myReaction: selectedVideo.myReaction
                                     ? selectedVideo.myReaction.toLowerCase()
                                     : null,
@@ -471,19 +533,26 @@ const Home = () => {
                                 >
                                     <header className="gallery-modal-header">
                                         <div>
-                                            <p className="gallery-modal-eyebrow">영상 상세 보기</p>
+                                            <p className="gallery-modal-eyebrow">
+                                                영상 상세 보기
+                                            </p>
                                             <h2 className="gallery-modal-title">
                                                 {selectedVideo.title}
                                             </h2>
 
                                             <div className="video-meta-stats gallery-modal-header-stats">
-                        <span className="video-meta-view">
-                          조회수 {selectedVideo.viewCount ?? 0}
-                        </span>
+                                                <span className="video-meta-view">
+                                                    조회수{" "}
+                                                    {selectedVideo.viewCount ??
+                                                        0}
+                                                </span>
                                                 {selectedVideo.uploadDate && (
                                                     <span className="video-meta-date">
-                            업로드 {formatDate(selectedVideo.uploadDate)}
-                          </span>
+                                                        업로드{" "}
+                                                        {formatDate(
+                                                            selectedVideo.uploadDate
+                                                        )}
+                                                    </span>
                                                 )}
                                             </div>
                                         </div>
@@ -515,44 +584,71 @@ const Home = () => {
                                                     <button
                                                         type="button"
                                                         className={
-                                                            "video-like-btn" + (liked ? " is-active" : "")
+                                                            "video-like-btn" +
+                                                            (liked
+                                                                ? " is-active"
+                                                                : "") +
+                                                            (!isLoggedIn
+                                                                ? " is-disabled"
+                                                                : "")
                                                         }
-                                                        onClick={() =>
-                                                            handleReaction(selectedVideo.videoNo, "like")
-                                                        }
+                                                        disabled={!isLoggedIn}
+                                                        onClick={() => {
+                                                            if (!isLoggedIn)
+                                                                return;
+                                                            handleReaction(
+                                                                selectedVideo.videoNo,
+                                                                "like"
+                                                            );
+                                                        }}
                                                         aria-label="좋아요"
                                                     >
                                                         <FaThumbsUp />
                                                     </button>
                                                     <span className="video-meta-count">
-                            {rs.likeCount}
-                          </span>
+                                                        {rs.likeCount}
+                                                    </span>
 
                                                     <button
                                                         type="button"
                                                         className={
                                                             "video-dislike-btn" +
-                                                            (disliked ? " is-active" : "")
+                                                            (disliked
+                                                                ? " is-active"
+                                                                : "") +
+                                                            (!isLoggedIn
+                                                                ? " is-disabled"
+                                                                : "")
                                                         }
-                                                        onClick={() =>
-                                                            handleReaction(selectedVideo.videoNo, "dislike")
-                                                        }
+                                                        disabled={!isLoggedIn}
+                                                        onClick={() => {
+                                                            if (!isLoggedIn)
+                                                                return;
+                                                            handleReaction(
+                                                                selectedVideo.videoNo,
+                                                                "dislike"
+                                                            );
+                                                        }}
                                                         aria-label="싫어요"
                                                     >
                                                         <FaThumbsDown />
                                                     </button>
                                                     <span className="video-meta-count">
-                            {rs.dislikeCount}
-                          </span>
+                                                        {rs.dislikeCount}
+                                                    </span>
                                                 </div>
                                             </div>
 
                                             {/* 설명 */}
                                             {selectedVideo.description && (
                                                 <div className="gallery-modal-field">
-                                                    <span className="gallery-modal-label">설명</span>
+                                                    <span className="gallery-modal-label">
+                                                        설명
+                                                    </span>
                                                     <p className="gallery-modal-text">
-                                                        {selectedVideo.description}
+                                                        {
+                                                            selectedVideo.description
+                                                        }
                                                     </p>
                                                 </div>
                                             )}
@@ -560,7 +656,9 @@ const Home = () => {
                                             {/* 태그 */}
                                             {selectedVideo.tag1 && (
                                                 <div className="gallery-modal-field">
-                                                    <span className="gallery-modal-label">태그</span>
+                                                    <span className="gallery-modal-label">
+                                                        태그
+                                                    </span>
                                                     <div className="gallery-modal-tags">
                                                         {[
                                                             selectedVideo.tag1,
@@ -575,8 +673,8 @@ const Home = () => {
                                                                     key={idx}
                                                                     className="gallery-modal-tag"
                                                                 >
-                                  #{t}
-                                </span>
+                                                                    #{t}
+                                                                </span>
                                                             ))}
                                                     </div>
                                                 </div>
