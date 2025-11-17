@@ -8,6 +8,7 @@ import {
 } from "../api/video";
 import { FaThumbsUp, FaThumbsDown, FaPlay, FaTimes } from "react-icons/fa";
 import { createPortal } from "react-dom";
+import { useAuth } from "../context/AuthContext";
 
 const TAGS = [
     { id: "all", label: "전체" },
@@ -91,6 +92,7 @@ const VideoDetailModal = ({
                               handleReaction,
                               formatDate,
                               onClose,
+                              isLoggedIn,
                           }) => {
     if (!video) return null;
 
@@ -155,11 +157,15 @@ const VideoDetailModal = ({
                                 <button
                                     type="button"
                                     className={
-                                        "video-like-btn" + (liked ? " is-active" : "")
+                                        "video-like-btn" +
+                                        (liked ? " is-active" : "") +
+                                        (!isLoggedIn ? " is-disabled" : "")
                                     }
-                                    onClick={() =>
-                                        handleReaction(video.videoNo, "like")
-                                    }
+                                    disabled={!isLoggedIn}
+                                    onClick={() => {
+                                        if (!isLoggedIn) return;
+                                        handleReaction(video.videoNo, "like");
+                                    }}
                                     aria-label="좋아요"
                                 >
                                     <FaThumbsUp />
@@ -172,11 +178,14 @@ const VideoDetailModal = ({
                                     type="button"
                                     className={
                                         "video-dislike-btn" +
-                                        (disliked ? " is-active" : "")
+                                        (disliked ? " is-active" : "") +
+                                        (!isLoggedIn ? " is-disabled" : "")
                                     }
-                                    onClick={() =>
-                                        handleReaction(video.videoNo, "dislike")
-                                    }
+                                    disabled={!isLoggedIn}
+                                    onClick={() => {
+                                        if (!isLoggedIn) return;
+                                        handleReaction(video.videoNo, "dislike");
+                                    }}
                                     aria-label="싫어요"
                                 >
                                     <FaThumbsDown />
@@ -228,6 +237,10 @@ const VideoDetailModal = ({
 };
 
 const VideoGallery = () => {
+    const auth = useAuth();
+    const user = auth?.user;
+    const isLoggedIn = !!user;
+
     // ✅ 여러 태그 선택 가능
     const [selectedTags, setSelectedTags] = useState(["all"]);
     const [keyword, setKeyword] = useState("");
@@ -352,7 +365,7 @@ const VideoGallery = () => {
     useEffect(() => {
         fetchVideos(0, keyword);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedTags]);;
+    }, [selectedTags]);
 
     // 모달 열릴 때 body 스크롤 막기 + ESC 닫기
     useEffect(() => {
@@ -444,6 +457,12 @@ const VideoGallery = () => {
 
     // ✅ 좋아요/싫어요 토글
     const handleReaction = async (videoNo, type) => {
+        if (!isLoggedIn) {
+            // 필요하면 안내 문구 띄우기
+            // alert("좋아요/싫어요는 로그인 후 이용 가능합니다.");
+            return;
+        }
+
         try {
             const action = type === "like" ? "LIKE" : "DISLIKE";
             const data = await toggleVideoReaction(videoNo, action);
@@ -622,10 +641,15 @@ const VideoGallery = () => {
                                                             "video-like-btn" +
                                                             (isLiked
                                                                 ? " is-active"
+                                                                : "") +
+                                                            (!isLoggedIn
+                                                                ? " is-disabled"
                                                                 : "")
                                                         }
+                                                        disabled={!isLoggedIn}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
+                                                            if (!isLoggedIn) return;
                                                             handleReaction(
                                                                 v.videoNo,
                                                                 "like"
@@ -645,10 +669,15 @@ const VideoGallery = () => {
                                                             "video-dislike-btn" +
                                                             (isDisliked
                                                                 ? " is-active"
+                                                                : "") +
+                                                            (!isLoggedIn
+                                                                ? " is-disabled"
                                                                 : "")
                                                         }
+                                                        disabled={!isLoggedIn}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
+                                                            if (!isLoggedIn) return;
                                                             handleReaction(
                                                                 v.videoNo,
                                                                 "dislike"
@@ -765,6 +794,7 @@ const VideoGallery = () => {
                     handleReaction={handleReaction}
                     formatDate={formatDate}
                     onClose={closeModal}
+                    isLoggedIn={isLoggedIn}
                 />
             )}
         </section>
