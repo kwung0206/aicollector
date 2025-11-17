@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../scss/Login.scss";
+import { sendEmailCode, verifyEmailCode } from "../api/auth";
 
 const SignUpEmail = () => {
     const navigate = useNavigate();
@@ -10,34 +11,71 @@ const SignUpEmail = () => {
     const [email, setEmail] = useState("");
     const [code, setCode] = useState("");
 
+    const [sending, setSending] = useState(false);
+    const [verifying, setVerifying] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [infoMsg, setInfoMsg] = useState("");
+
     const isValidEmail =
         email.trim().length > 3 && email.includes("@") && email.includes(".");
 
-    const handleSendCode = (e) => {
-        e.preventDefault();
-        if (!isValidEmail) return;
+    const handleSendCode = async (e) => {
+        if (e) e.preventDefault();
+        if (!isValidEmail || sending) return;
 
-        // TODO: 나중에 여기서 백엔드 호출해서 실제로 인증 메일 발송
-        console.log("인증번호 발송 요청:", email);
+        setErrorMsg("");
+        setInfoMsg("");
 
-        setStep("code");
+        try {
+            setSending(true);
+            const res = await sendEmailCode(email.trim());
+            setInfoMsg(res?.message || "인증번호를 전송했습니다. 이메일을 확인해 주세요.");
+            setStep("code");
+        } catch (err) {
+            console.error("인증번호 발송 실패:", err);
+            const msg =
+                err?.response?.data?.message ||
+                err?.response?.data?.error ||
+                "인증번호 발송 중 오류가 발생했습니다.";
+            setErrorMsg(msg);
+        } finally {
+            setSending(false);
+        }
     };
 
-    const handleVerifyCode = (e) => {
+    const handleVerifyCode = async (e) => {
         e.preventDefault();
-        if (!code.trim()) return;
+        if (!code.trim() || verifying) return;
 
-        // TODO: 나중에 여기서 백엔드 호출해서 인증번호 검증
-        console.log("인증번호 검증:", { email, code });
+        setErrorMsg("");
+        setInfoMsg("");
 
-        navigate("/signup/form", {
-            state: { email },        // ✅ 여기로 이메일 전달
-        });
+        try {
+            setVerifying(true);
+            const res = await verifyEmailCode(email.trim(), code.trim());
+            setInfoMsg(res?.message || "이메일 인증이 완료되었습니다.");
+
+            // ✅ 인증 완료 후 회원가입 폼으로 이동 (이메일 전달)
+            navigate("/signup/form", {
+                state: { email: email.trim() },
+            });
+        } catch (err) {
+            console.error("인증번호 검증 실패:", err);
+            const msg =
+                err?.response?.data?.message ||
+                err?.response?.data?.error ||
+                "인증번호 확인 중 오류가 발생했습니다.";
+            setErrorMsg(msg);
+        } finally {
+            setVerifying(false);
+        }
     };
 
     const goBackToEmail = () => {
         setStep("email");
         setCode("");
+        setErrorMsg("");
+        setInfoMsg("");
     };
 
     return (
@@ -77,7 +115,9 @@ const SignUpEmail = () => {
                                 5분 이내에 인증번호를 입력하면 다음 단계로 이동합니다.
                                 <br />
                                 <br />
-                                <strong style={{ color: "#e5e7eb", fontWeight: 500 }}>
+                                <strong
+                                    style={{ color: "#e5e7eb", fontWeight: 500 }}
+                                >
                                     {email}
                                 </strong>
                             </p>
@@ -91,8 +131,8 @@ const SignUpEmail = () => {
                         <>
                             <h3 className="login-card-title">이메일 입력</h3>
                             <p className="login-card-sub">
-                                계정에 사용할 이메일 주소를 입력해 주세요. 로그인 및 비밀번호
-                                찾기에 사용됩니다.
+                                계정에 사용할 이메일 주소를 입력해 주세요. 로그인 및
+                                비밀번호 찾기에 사용됩니다.
                             </p>
 
                             <form className="login-form" onSubmit={handleSendCode}>
@@ -106,13 +146,22 @@ const SignUpEmail = () => {
                                     />
                                 </div>
 
+                                {errorMsg && (
+                                    <p className="login-error-msg">{errorMsg}</p>
+                                )}
+                                {infoMsg && !errorMsg && (
+                                    <p className="login-info-msg">{infoMsg}</p>
+                                )}
+
                                 <div className="login-actions-top">
                                     <button
                                         type="submit"
                                         className="btn btn-primary login-submit"
-                                        disabled={!isValidEmail}
+                                        disabled={!isValidEmail || sending}
                                     >
-                                        다음 (인증번호 보내기)
+                                        {sending
+                                            ? "전송 중..."
+                                            : "다음 (인증번호 보내기)"}
                                     </button>
                                 </div>
                             </form>
@@ -121,7 +170,8 @@ const SignUpEmail = () => {
                         <>
                             <h3 className="login-card-title">인증번호 확인</h3>
                             <p className="login-card-sub">
-                                입력하신 이메일 주소로 전송된 인증번호 6자리를 입력해 주세요.
+                                입력하신 이메일 주소로 전송된 인증번호 6자리를
+                                입력해 주세요.
                             </p>
 
                             <form className="login-form" onSubmit={handleVerifyCode}>
@@ -136,13 +186,22 @@ const SignUpEmail = () => {
                                     />
                                 </div>
 
+                                {errorMsg && (
+                                    <p className="login-error-msg">{errorMsg}</p>
+                                )}
+                                {infoMsg && !errorMsg && (
+                                    <p className="login-info-msg">{infoMsg}</p>
+                                )}
+
                                 <div className="login-actions-top">
                                     <button
                                         type="submit"
                                         className="btn btn-primary login-submit"
-                                        disabled={!code.trim()}
+                                        disabled={!code.trim() || verifying}
                                     >
-                                        인증하고 다음 단계로
+                                        {verifying
+                                            ? "확인 중..."
+                                            : "인증하고 다음 단계로"}
                                     </button>
 
                                     <div className="login-links">
@@ -150,6 +209,7 @@ const SignUpEmail = () => {
                                             type="button"
                                             className="link-button"
                                             onClick={handleSendCode}
+                                            disabled={sending}
                                         >
                                             인증번호 다시 받기
                                         </button>
