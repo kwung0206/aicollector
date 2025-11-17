@@ -11,71 +11,74 @@ const SignUpEmail = () => {
     const [email, setEmail] = useState("");
     const [code, setCode] = useState("");
 
-    const [sending, setSending] = useState(false);
-    const [verifying, setVerifying] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
-    const [infoMsg, setInfoMsg] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [info, setInfo] = useState("");
 
     const isValidEmail =
         email.trim().length > 3 && email.includes("@") && email.includes(".");
 
+    /** ✅ 인증번호 보내기 */
     const handleSendCode = async (e) => {
-        if (e) e.preventDefault();
-        if (!isValidEmail || sending) return;
+        e.preventDefault();
+        if (!isValidEmail || loading) return;
 
-        setErrorMsg("");
-        setInfoMsg("");
+        setError("");
+        setInfo("");
 
         try {
-            setSending(true);
-            const res = await sendEmailCode(email.trim());
-            setInfoMsg(res?.message || "인증번호를 전송했습니다. 이메일을 확인해 주세요.");
+            setLoading(true);
+            // 백엔드로 실제 요청
+            await sendEmailCode(email.trim());
+            setInfo("인증번호를 전송했습니다. 이메일을 확인해 주세요.");
             setStep("code");
         } catch (err) {
-            console.error("인증번호 발송 실패:", err);
+            console.error("이메일 인증번호 발송 실패:", err);
             const msg =
-                err?.response?.data?.message ||
-                err?.response?.data?.error ||
-                "인증번호 발송 중 오류가 발생했습니다.";
-            setErrorMsg(msg);
+                err.response?.data?.message ||
+                err.response?.data?.error ||
+                "인증 메일을 보내는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+            setError(msg);
         } finally {
-            setSending(false);
+            setLoading(false);
         }
     };
 
+    /** ✅ 인증번호 확인 */
     const handleVerifyCode = async (e) => {
         e.preventDefault();
-        if (!code.trim() || verifying) return;
+        if (!code.trim() || loading) return;
 
-        setErrorMsg("");
-        setInfoMsg("");
+        setError("");
+        setInfo("");
 
         try {
-            setVerifying(true);
-            const res = await verifyEmailCode(email.trim(), code.trim());
-            setInfoMsg(res?.message || "이메일 인증이 완료되었습니다.");
+            setLoading(true);
+            // 백엔드로 실제 검증 요청
+            await verifyEmailCode(email.trim(), code.trim());
+            setInfo("이메일 인증이 완료되었습니다.");
 
-            // ✅ 인증 완료 후 회원가입 폼으로 이동 (이메일 전달)
+            // ✅ 다음 단계(회원 정보 입력)으로 이동하면서 이메일 넘기기
             navigate("/signup/form", {
                 state: { email: email.trim() },
             });
         } catch (err) {
-            console.error("인증번호 검증 실패:", err);
+            console.error("이메일 인증번호 검증 실패:", err);
             const msg =
-                err?.response?.data?.message ||
-                err?.response?.data?.error ||
-                "인증번호 확인 중 오류가 발생했습니다.";
-            setErrorMsg(msg);
+                err.response?.data?.message ||
+                err.response?.data?.error ||
+                "인증번호 확인 중 오류가 발생했습니다. 다시 시도해 주세요.";
+            setError(msg);
         } finally {
-            setVerifying(false);
+            setLoading(false);
         }
     };
 
     const goBackToEmail = () => {
         setStep("email");
         setCode("");
-        setErrorMsg("");
-        setInfoMsg("");
+        setError("");
+        setInfo("");
     };
 
     return (
@@ -112,7 +115,7 @@ const SignUpEmail = () => {
                             <p className="login-desc">
                                 아래 주소로 인증번호를 보냈어요.
                                 <br />
-                                5분 이내에 인증번호를 입력하면 다음 단계로 이동합니다.
+                                {`10분 이내에 인증번호를 입력하면 다음 단계로 이동합니다.`}
                                 <br />
                                 <br />
                                 <strong
@@ -131,8 +134,8 @@ const SignUpEmail = () => {
                         <>
                             <h3 className="login-card-title">이메일 입력</h3>
                             <p className="login-card-sub">
-                                계정에 사용할 이메일 주소를 입력해 주세요. 로그인 및
-                                비밀번호 찾기에 사용됩니다.
+                                계정에 사용할 이메일 주소를 입력해 주세요. 로그인 및 비밀번호
+                                찾기에 사용됩니다.
                             </p>
 
                             <form className="login-form" onSubmit={handleSendCode}>
@@ -146,22 +149,37 @@ const SignUpEmail = () => {
                                     />
                                 </div>
 
-                                {errorMsg && (
-                                    <p className="login-error-msg">{errorMsg}</p>
+                                {/* 서버에서 온 메시지 */}
+                                {info && (
+                                    <p
+                                        style={{
+                                            color: "#38bdf8",
+                                            fontSize: "0.85rem",
+                                            marginTop: 4,
+                                        }}
+                                    >
+                                        {info}
+                                    </p>
                                 )}
-                                {infoMsg && !errorMsg && (
-                                    <p className="login-info-msg">{infoMsg}</p>
+                                {error && (
+                                    <p
+                                        style={{
+                                            color: "#f87171",
+                                            fontSize: "0.85rem",
+                                            marginTop: 4,
+                                        }}
+                                    >
+                                        {error}
+                                    </p>
                                 )}
 
                                 <div className="login-actions-top">
                                     <button
                                         type="submit"
                                         className="btn btn-primary login-submit"
-                                        disabled={!isValidEmail || sending}
+                                        disabled={!isValidEmail || loading}
                                     >
-                                        {sending
-                                            ? "전송 중..."
-                                            : "다음 (인증번호 보내기)"}
+                                        {loading ? "전송 중..." : "다음 (인증번호 보내기)"}
                                     </button>
                                 </div>
                             </form>
@@ -170,8 +188,7 @@ const SignUpEmail = () => {
                         <>
                             <h3 className="login-card-title">인증번호 확인</h3>
                             <p className="login-card-sub">
-                                입력하신 이메일 주소로 전송된 인증번호 6자리를
-                                입력해 주세요.
+                                입력하신 이메일 주소로 전송된 인증번호 6자리를 입력해 주세요.
                             </p>
 
                             <form className="login-form" onSubmit={handleVerifyCode}>
@@ -186,22 +203,37 @@ const SignUpEmail = () => {
                                     />
                                 </div>
 
-                                {errorMsg && (
-                                    <p className="login-error-msg">{errorMsg}</p>
+                                {/* 서버에서 온 메시지 */}
+                                {info && (
+                                    <p
+                                        style={{
+                                            color: "#38bdf8",
+                                            fontSize: "0.85rem",
+                                            marginTop: 4,
+                                        }}
+                                    >
+                                        {info}
+                                    </p>
                                 )}
-                                {infoMsg && !errorMsg && (
-                                    <p className="login-info-msg">{infoMsg}</p>
+                                {error && (
+                                    <p
+                                        style={{
+                                            color: "#f87171",
+                                            fontSize: "0.85rem",
+                                            marginTop: 4,
+                                        }}
+                                    >
+                                        {error}
+                                    </p>
                                 )}
 
                                 <div className="login-actions-top">
                                     <button
                                         type="submit"
                                         className="btn btn-primary login-submit"
-                                        disabled={!code.trim() || verifying}
+                                        disabled={!code.trim() || loading}
                                     >
-                                        {verifying
-                                            ? "확인 중..."
-                                            : "인증하고 다음 단계로"}
+                                        {loading ? "확인 중..." : "인증하고 다음 단계로"}
                                     </button>
 
                                     <div className="login-links">
@@ -209,7 +241,7 @@ const SignUpEmail = () => {
                                             type="button"
                                             className="link-button"
                                             onClick={handleSendCode}
-                                            disabled={sending}
+                                            disabled={loading}
                                         >
                                             인증번호 다시 받기
                                         </button>
@@ -218,6 +250,7 @@ const SignUpEmail = () => {
                                             type="button"
                                             className="link-button"
                                             onClick={goBackToEmail}
+                                            disabled={loading}
                                         >
                                             이메일 주소 변경
                                         </button>
