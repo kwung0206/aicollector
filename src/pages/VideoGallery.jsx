@@ -10,8 +10,9 @@ import { FaThumbsUp, FaThumbsDown, FaPlay, FaTimes } from "react-icons/fa";
 import { createPortal } from "react-dom";
 import { useAuth } from "../context/AuthContext";
 
-// src/constants/tags.js (예시)
+// src/constants/tags.js 대신 이 파일 안에 정의 (원하면 나중에 분리)
 
+// ✅ Ollama CATEGORIES 와 1:1 매칭되는 태그 목록
 export const TAGS = [
     { id: "all",             label: "전체" },
 
@@ -49,8 +50,8 @@ export const TAGS = [
     { id: "robotics",        label: "로봇" },
     { id: "science",         label: "과학" },
 
-    { id: "education_class",     label: "교육·수업" },
-    { id: "lecture_presentation",label: "강연·발표" },
+    { id: "education_class",      label: "교육·수업" },
+    { id: "lecture_presentation", label: "강연·발표" },
 
     { id: "vlog",            label: "브이로그" },
     { id: "review_unboxing", label: "리뷰·언박싱" },
@@ -81,12 +82,17 @@ export const TAGS = [
     { id: "kpop_music",      label: "K-POP 음악" },
 ];
 
+// ✅ id → 한글 라벨 매핑
+const TAG_LABEL_MAP = TAGS.reduce((acc, tag) => {
+    acc[tag.id] = tag.label;
+    return acc;
+}, {});
 
 // ✅ 정렬 옵션
 const SORT_OPTIONS = [
     { id: "latest", label: "최신순" },
     { id: "oldest", label: "오래된순" },
-    { id: "views", label: "조회수순" },
+    { id: "views",  label: "조회수순" },
     { id: "dislikes", label: "싫어요순" },
 ];
 
@@ -230,7 +236,7 @@ const VideoDetailModal = ({
                                                 key={idx}
                                                 className="gallery-modal-tag"
                                             >
-                                                #{t}
+                                                #{TAG_LABEL_MAP[t] || t}
                                             </span>
                                         ))}
                                 </div>
@@ -333,11 +339,17 @@ const VideoGallery = () => {
     const fetchVideos = async (pageToLoad = 0, keywordParam = "") => {
         try {
             setLoading(true);
+
+            // ✅ "전체"는 서버 필터에 사용하지 않음 → 빈 배열로
+            const effectiveTags = selectedTags.includes("all")
+                ? []
+                : selectedTags;
+
             const data = await getPublicVideos({
                 page: pageToLoad,
                 size: PAGE_SIZE,
                 keyword: keywordParam,
-                tags: selectedTags,
+                tags: effectiveTags,
             });
 
             const content = data.content || [];
@@ -369,7 +381,7 @@ const VideoGallery = () => {
         }
     };
 
-    // 첫 진입 시 0페이지 로드
+    // 첫 진입 & 태그 변경 시 0페이지 로드
     useEffect(() => {
         fetchVideos(0, keyword);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -466,8 +478,6 @@ const VideoGallery = () => {
     // ✅ 좋아요/싫어요 토글
     const handleReaction = async (videoNo, type) => {
         if (!isLoggedIn) {
-            // 필요하면 안내 문구 띄우기
-            // alert("좋아요/싫어요는 로그인 후 이용 가능합니다.");
             return;
         }
 
@@ -718,7 +728,7 @@ const VideoGallery = () => {
                                                                 key={idx}
                                                                 className="video-meta-tag"
                                                             >
-                                                                #{t}
+                                                                #{TAG_LABEL_MAP[t] || t}
                                                             </span>
                                                         ))}
                                                 </div>
