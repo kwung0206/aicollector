@@ -4,69 +4,6 @@ import { useNavigate } from "react-router-dom";
 import "../scss/VideoUpload.scss";
 import { uploadVideo } from "../api/video";
 
-const VIDEO_TAGS = [
-    { id: "nature", label: "자연" },
-    { id: "forest", label: "숲" },
-    { id: "tree", label: "나무" },
-    { id: "flower", label: "꽃" },
-    { id: "grass", label: "잔디" },
-    { id: "mountain", label: "산" },
-    { id: "river", label: "강" },
-    { id: "sea", label: "바다" },
-    { id: "beach", label: "해변" },
-
-    { id: "sky", label: "하늘" },
-    { id: "cloud", label: "구름" },
-    { id: "sun", label: "태양" },
-    { id: "moon", label: "달" },
-    { id: "star", label: "별" },
-    { id: "night", label: "밤" },
-    { id: "sunrise", label: "일출" },
-    { id: "sunset", label: "일몰" },
-
-    { id: "rain", label: "비" },
-    { id: "snow", label: "눈" },
-    { id: "wind", label: "바람" },
-
-    { id: "city", label: "도시" },
-    { id: "street", label: "거리" },
-    { id: "park", label: "공원" },
-    { id: "school", label: "학교" },
-    { id: "classroom", label: "교실" },
-
-    { id: "home", label: "집" },
-    { id: "kitchen", label: "주방" },
-    { id: "office", label: "사무실" },
-    { id: "library", label: "도서관" },
-    { id: "playground", label: "놀이터" },
-
-    { id: "people", label: "사람" },
-    { id: "child", label: "아이" },
-    { id: "family", label: "가족" },
-    { id: "friends", label: "친구" },
-
-    { id: "cat", label: "고양이" },
-    { id: "dog", label: "강아지" },
-    { id: "rabbit", label: "토끼" },
-    { id: "bird", label: "새" },
-    { id: "animal", label: "동물" },
-
-    { id: "car", label: "자동차" },
-    { id: "train", label: "기차" },
-    { id: "bicycle", label: "자전거" },
-
-    { id: "space", label: "우주" },
-    { id: "planet", label: "행성" },
-    { id: "earth", label: "지구" },
-    { id: "galaxy", label: "은하" },
-    { id: "universe", label: "우주 전체" },
-
-    { id: "clock", label: "시계" },
-    { id: "soil", label: "흙" },
-    { id: "farm", label: "농장" },
-];
-
-
 // 파일 크기 표시용
 const formatBytes = (bytes) => {
     if (!bytes && bytes !== 0) return "-";
@@ -85,7 +22,6 @@ const VideoUploadPage = () => {
     const fileInputRef = useRef(null);
 
     const [title, setTitle] = useState("");
-    const [selectedTags, setSelectedTags] = useState([]);
     const [file, setFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState("");
 
@@ -98,34 +34,12 @@ const VideoUploadPage = () => {
     // 🔹 제목 전용 에러
     const [titleError, setTitleError] = useState("");
 
-    // 🔹 태그 5/5일 때 흔들림 플래그
-    const [tagShake, setTagShake] = useState(false);
-
     // 🔹 미리보기 URL 메모리 정리
     useEffect(() => {
         return () => {
             if (previewUrl) URL.revokeObjectURL(previewUrl);
         };
     }, [previewUrl]);
-
-    // 태그 토글 (최대 5개, 초과 시 텍스트 흔들기)
-    const toggleTag = (id) => {
-        setErrorMsg("");
-        setInfoMsg("");
-
-        setSelectedTags((prev) => {
-            if (prev.includes(id)) {
-                return prev.filter((t) => t !== id);
-            }
-            if (prev.length >= 5) {
-                // 🔸 5개 초과 시 "선택된 태그: 5 / 5" 흔들기
-                setTagShake(true);
-                setTimeout(() => setTagShake(false), 320);
-                return prev;
-            }
-            return [...prev, id];
-        });
-    };
 
     const handleFileClick = () => {
         fileInputRef.current?.click();
@@ -183,17 +97,13 @@ const VideoUploadPage = () => {
             setErrorMsg("업로드할 영상을 선택해 주세요.");
             return;
         }
-        if (selectedTags.length === 0) {
-            setErrorMsg("태그를 1개 이상 선택해 주세요.");
-            return;
-        }
 
         try {
             setIsUploading(true);
 
             await uploadVideo({
                 title: title.trim(),
-                tags: selectedTags,
+                // 태그 선택 UI를 없앴으므로 tags는 보내지 않음
                 file,
             });
 
@@ -221,7 +131,7 @@ const VideoUploadPage = () => {
                 <h2 className="vu-title">영상 업로드</h2>
 
                 <div className="vu-card">
-                    {/* 왼쪽: 제목 + 태그 */}
+                    {/* 왼쪽: 제목만 입력 */}
                     <form className="vu-form" onSubmit={handleSubmit}>
                         <div>
                             {/* 제목 */}
@@ -243,46 +153,6 @@ const VideoUploadPage = () => {
                                 />
                                 {titleError && (
                                     <p className="vu-error-inline">{titleError}</p>
-                                )}
-                            </div>
-
-                            {/* 태그 선택 */}
-                            <div className="vu-field">
-                                <div className="vu-label-row">
-                                    <label>태그</label>
-                                    <span className="vu-label-badge">최대 5개</span>
-                                </div>
-                                <p className="vu-hint">
-                                    AI, 보안, 코딩, 면접 등 영상을 잘 설명할 수 있는 태그를 선택해 주세요.
-                                </p>
-
-                                <div className="vu-tag-row">
-                                    {VIDEO_TAGS.map((tag) => {
-                                        const active = selectedTags.includes(tag.id);
-                                        return (
-                                            <button
-                                                key={tag.id}
-                                                type="button"
-                                                className={
-                                                    "vu-tag-chip" + (active ? " vu-tag-chip--active" : "")
-                                                }
-                                                onClick={() => toggleTag(tag.id)}
-                                            >
-                                                {tag.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                                {selectedTags.length > 0 && (
-                                    <p
-                                        className={
-                                            "vu-info vu-info--tag" +
-                                            (selectedTags.length >= 5 ? " vu-info--max" : "") +
-                                            (tagShake ? " vu-info--shake" : "")
-                                        }
-                                    >
-                                        선택된 태그: {selectedTags.length} / 5
-                                    </p>
                                 )}
                             </div>
                         </div>
@@ -340,8 +210,8 @@ const VideoUploadPage = () => {
                             <div className="vu-file-selected">
                                 <span className="vu-file-selected-name">{file.name}</span>
                                 <span className="vu-file-selected-size">
-                  {formatBytes(file.size)}
-                </span>
+                                    {formatBytes(file.size)}
+                                </span>
                             </div>
                         )}
 

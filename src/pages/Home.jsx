@@ -326,9 +326,9 @@ const Home = () => {
                             </span>
                         </div>
                         <div className="stat">
-                            <span className="stat-value">50+</span>
+                            <span className="stat-value">14+</span>
                             <span className="stat-label">
-                                카테고리(자연 · 게임 · 우주 등)
+                                카테고리(동물 · 게임 · 우주 등)
                             </span>
                         </div>
                         <div className="stat">
