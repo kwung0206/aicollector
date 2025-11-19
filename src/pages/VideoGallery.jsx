@@ -719,8 +719,6 @@ const VideoGallery = () => {
                                                         v.tag1,
                                                         v.tag2,
                                                         v.tag3,
-                                                        v.tag4,
-                                                        v.tag5,
                                                     ]
                                                         .filter(Boolean)
                                                         .map((t, idx) => (
