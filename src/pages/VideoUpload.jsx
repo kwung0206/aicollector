@@ -129,9 +129,15 @@ const VideoUploadPage = () => {
         <>
             <section className="video-upload-page">
                 <h2 className="vu-title">영상 업로드</h2>
+                <p className="vu-subdesc">
+                    태그는 직접 선택하지 않아도 됩니다. 영상을 업로드하면 데스크탑에 설치된 Ollama 비전 모델이
+                    여러 프레임을 분석해 <strong>게임, 자연, 사람, 애니메이션과</strong> 같은 주제 태그를 자동으로 붙여 줍니다.
+                    이렇게 생성된 태그를 기준으로 갤러리와 검색 페이지에서 영상을 쉽게 찾을 수 있어요.
+                </p>
 
                 <div className="vu-card">
-                    {/* 왼쪽: 제목만 입력 */}
+
+                {/* 왼쪽: 제목만 입력 */}
                     <form className="vu-form" onSubmit={handleSubmit}>
                         <div>
                             {/* 제목 */}
