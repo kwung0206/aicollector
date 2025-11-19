@@ -10,24 +10,77 @@ import { FaThumbsUp, FaThumbsDown, FaPlay, FaTimes } from "react-icons/fa";
 import { createPortal } from "react-dom";
 import { useAuth } from "../context/AuthContext";
 
-const TAGS = [
-    { id: "all", label: "전체" },
+// src/constants/tags.js (예시)
 
-    { id: "game",      label: "게임" },
-    { id: "sports",    label: "스포츠" },
-    { id: "animals",   label: "동물" },
-    { id: "space",     label: "우주" },
-    { id: "animation", label: "애니메이션" },
-    { id: "music",     label: "음악" },
-    { id: "dance",     label: "춤" },
-    { id: "art",       label: "예술" },
-    { id: "forest",    label: "숲" },
-    { id: "buildings", label: "건물" },
-    { id: "sea",       label: "바다" },
-    { id: "street",    label: "거리" },
-    { id: "glacier",   label: "빙하" },
-    { id: "mountain",  label: "산" },
+export const TAGS = [
+    { id: "all",             label: "전체" },
+
+    { id: "game",            label: "게임" },
+    { id: "nature",          label: "자연" },
+    { id: "people",          label: "사람" },
+    { id: "daily_life",      label: "일상" },
+
+    { id: "dance",           label: "춤" },
+    { id: "animation",       label: "애니메이션" },
+    { id: "music",           label: "음악" },
+    { id: "visual_art",      label: "시각 예술" },
+
+    { id: "world_travel",    label: "세계·여행" },
+    { id: "space",           label: "우주" },
+    { id: "city",            label: "도시" },
+    { id: "landscape",       label: "풍경" },
+    { id: "ocean",           label: "바다" },
+    { id: "mountain",        label: "산" },
+    { id: "sky",             label: "하늘" },
+
+    { id: "animals",         label: "동물" },
+    { id: "pets",            label: "반려동물" },
+    { id: "cats",            label: "고양이" },
+    { id: "dogs",            label: "강아지" },
+
+    { id: "sports_general",  label: "스포츠(일반)" },
+    { id: "soccer",          label: "축구" },
+    { id: "basketball",      label: "농구" },
+    { id: "fitness",         label: "운동·피트니스" },
+
+    { id: "technology",      label: "기술" },
+    { id: "programming",     label: "프로그래밍" },
+    { id: "ai_ml",           label: "AI·머신러닝" },
+    { id: "robotics",        label: "로봇" },
+    { id: "science",         label: "과학" },
+
+    { id: "education_class",     label: "교육·수업" },
+    { id: "lecture_presentation",label: "강연·발표" },
+
+    { id: "vlog",            label: "브이로그" },
+    { id: "review_unboxing", label: "리뷰·언박싱" },
+
+    { id: "food_cooking",    label: "음식·요리" },
+    { id: "restaurant_dining",label: "맛집·외식" },
+
+    { id: "fashion_style",   label: "패션·스타일" },
+    { id: "beauty_makeup",   label: "뷰티·메이크업" },
+
+    { id: "craft_diy",       label: "공예·DIY" },
+    { id: "3d_graphics",     label: "3D·그래픽" },
+    { id: "drawing_illustration", label: "드로잉·일러스트" },
+
+    { id: "car_motorcycle",  label: "자동차·오토바이" },
+    { id: "drone_aerial",    label: "드론·항공 뷰" },
+
+    { id: "office_work",     label: "사무·업무" },
+    { id: "kids_family",     label: "키즈·가족" },
+
+    { id: "comedy_meme",     label: "코미디·밈" },
+    { id: "news_politics",   label: "뉴스·정치" },
+    { id: "documentary",     label: "다큐멘터리" },
+    { id: "horror_scary",    label: "공포" },
+    { id: "romantic_love",   label: "로맨스·연애" },
+
+    { id: "kpop_dance",      label: "K-POP 댄스" },
+    { id: "kpop_music",      label: "K-POP 음악" },
 ];
+
 
 // ✅ 정렬 옵션
 const SORT_OPTIONS = [
