@@ -200,7 +200,7 @@ const VideoUploadPage = () => {
                             <div className="vu-file-sub">
                                 MP4, WEBM 등 대부분의 영상 포맷 지원
                             </div>
-                            <div className="vu-file-meta">최대 1GB 권장</div>
+                            <div className="vu-file-meta">최대 500MB</div>
 
                             <input
                                 ref={fileInputRef}
