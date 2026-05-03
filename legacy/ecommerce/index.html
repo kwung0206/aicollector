@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>김광진 · AI-Collector (AI 영상 모음 사이트) 프로젝트 포트폴리오</title>
+
+  <meta name="description" content="AI-Collector — 생성형 AI 영상 공유/수집 플랫폼. 카테고리 정리 · 프롬프트 기반 추천 · 유해 영상 필터링. React · Spring Boot · Oracle · Docker · Nginx" />
+  <meta property="og:title" content="김광진 · AI-Collector (AI 영상 모음 사이트) 프로젝트 포트폴리오" />
+  <meta property="og:description" content="생성형 AI 영상 제작 시행착오를 줄이기 위한 영상 허브 — 태그/카테고리 정리 · 프롬프트 기반 추천 · 유해 영상 필터링" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://github.com/kwung0206/ecommerce/blob/main/profile.jpg?raw=1" />
+
+  <meta name="color-scheme" content="light dark" />
+  <style>
+    :root{
+      --bg:#0b0e14;
+      --panel:#11151f;
+      --text:#e6edf3;
+      --muted:#9fb1c1;
+      --brand:#6ab0ff;
+      --brand-2:#8d7aff;
+      --chip:#1b2433;
+      --border:#22304a;
+      --ok:#21c482;
+      --warn:#ffce57;
+      --bad:#ff6b6b;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#f6f8fa; --panel:#ffffff; --text:#0b0e14; --muted:#5b6b7c;
+        --chip:#eef2f6; --border:#e3e8ef; --brand:#1463ff; --brand-2:#7b5cff;
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0; padding:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,Arial,sans-serif;
+      background:var(--bg); color:var(--text);
+    }
+    a{color:var(--brand); text-decoration:none}
+    a:hover{text-decoration:underline}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .container{max-width:1080px;margin:0 auto;padding:24px}
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter:saturate(180%) blur(8px);
+      background:color-mix(in oklab, var(--bg) 75%, transparent);
+      border-bottom:1px solid var(--border);
+    }
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .nav .brand{display:flex;align-items:center;gap:12px;font-weight:800}
+    .nav .brand .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(135deg,var(--brand),var(--brand-2))
+    }
+    .nav a{font-weight:650}
+    .nav-links{display:flex;gap:14px;flex-wrap:wrap}
+    .nav-toggle{display:none}
+    @media (max-width:760px){
+      .nav-links{display:none}
+      .nav-toggle{display:block}
+    }
+    .mobile-menu{display:none;padding:12px 0}
+    .mobile-menu.open{display:block}
+    .mobile-menu a{font-weight:650}
+
+    section{margin:22px 0}
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:20px
+    }
+    .muted{color:var(--muted)}
+    h1,h2,h3{margin:0 0 10px 0}
+    h1{font-size:28px}
+    h2{font-size:22px}
+    h3{font-size:18px}
+    p{line-height:1.7; margin:8px 0}
+    ul,ol{margin:8px 0 0 18px; line-height:1.7}
+
+    .hero{
+      display:grid;
+      grid-template-columns:160px 1fr;
+      gap:24px;
+      align-items:center;
+      padding:26px 0
+    }
+    .avatar{
+      width:160px;height:160px;border-radius:24px;object-fit:cover;
+      border:1px solid var(--border);
+      box-shadow:0 10px 30px color-mix(in oklab, var(--brand) 22%, transparent)
+    }
+    @media (max-width:960px){
+      .hero{grid-template-columns:1fr; text-align:center}
+      .avatar{margin:0 auto}
+    }
+
+    .badge{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background:var(--chip);
+      border:1px solid var(--border);
+      font-weight:650
+    }
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .chip{
+      padding:6px 10px;border-radius:999px;
+      background:var(--chip); border:1px solid var(--border);
+      font-weight:650
+    }
+
+    .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 14px; border-radius:10px;
+      border:1px solid var(--border);
+      background:linear-gradient(135deg,
+        color-mix(in oklab,var(--chip),transparent 20%),
+        color-mix(in oklab,var(--panel),transparent 20%)
+      );
+      font-weight:750; cursor:pointer;
+      transition:transform .12s ease, border-color .12s ease;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:color-mix(in oklab,var(--brand),var(--border) 65%)}
+    .btn:active{transform:translateY(0px)}
+    .btn.secondary{opacity:.95}
+
+    .grid{display:grid;gap:16px}
+    .grid-2{grid-template-columns:1fr 1fr}
+    .grid-3{grid-template-columns:repeat(3,1fr)}
+    @media (max-width:960px){
+      .grid-2,.grid-3{grid-template-columns:1fr}
+    }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid var(--border); background:var(--chip);
+      font-weight:650
+    }
+
+    .hr{height:1px;background:var(--border);margin:16px 0}
+    .footer{
+      border-top:1px solid var(--border);
+      padding:24px 0;
+      margin-top:24px
+    }
+
+    /* ✅ 시스템 구조도 이미지 */
+    .figure{
+      margin-top:12px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      overflow:hidden;
+      background:color-mix(in oklab,var(--panel),transparent 10%);
+    }
+    .figure img{
+      display:block;
+      width:100%;
+      height:auto;
+    }
+    .figcap{
+      padding:10px 12px;
+      border-top:1px solid var(--border);
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    /* ✅ 코드 스크롤 박스 */
+    .code-card-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    .codebox{
+      margin-top:12px;
+      max-height:420px;
+      overflow:auto;
+      padding:14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:color-mix(in oklab, var(--chip), transparent 5%);
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:12px;
+      line-height:1.55;
+      white-space:pre;
+      tab-size:2;
+    }
+    .code-meta{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      color:var(--muted); font-size:12px;
+    }
+    .hero-link{
+  display:inline-block;
+  margin-top:6px;
+  font-size:20px;        /* 크게 */
+  font-weight:850;       /* 제목급 두께 */
+  letter-spacing:-0.2px;
+  text-decoration:none;
+  color:var(--text);
+}
+.hero-link:hover{
+  text-decoration:underline;
+  color:var(--brand);
+}
+/* ✅ 화면 미리보기(스크린샷) */
+.gallery{
+  margin-top:12px;
+}
+.shot{
+  margin:0;
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  background:color-mix(in oklab,var(--panel),transparent 10%);
+}
+.shot a{display:block}
+.shot img{
+  display:block;
+  width:100%;
+  height:auto;
+}
+.shot figcaption{
+  padding:10px 12px;
+  border-top:1px solid var(--border);
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+    @media print{
+      header,.btn-row{display:none}
+      .container{padding:0}
+      body{background:#fff;color:#000}
+      .card{border:1px solid #ddd}
+      a{color:#000;text-decoration:none}
+      .codebox{max-height:none}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <span class="dot"></span>
+        김광진 · AI-Collector
+      </div>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#overview">개발 개요</a>
+        <a href="#problem">문제/해결</a>
+        <a href="#features">주요 기능</a>
+        <a href="#architecture">시스템 구조</a>
+        <a href="#code">태깅 코드</a>
+        <a href="#stack">기술 스택</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <button class="nav-toggle btn" aria-label="메뉴 열기" onclick="toggleMenu()">메뉴</button>
+    </div>
+    <div class="container mobile-menu" id="mobileMenu" aria-label="모바일 메뉴">
+      <a href="#overview">개발 개요</a> ·
+      <a href="#problem">문제/해결</a> ·
+      <a href="#features">주요 기능</a> ·
+      <a href="#architecture">시스템 구조</a> ·
+      <a href="#code">태깅 코드</a> ·
+      <a href="#stack">기술 스택</a> ·
+      <a href="#contact">Contact</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section class="hero card" id="home">
+      <img class="avatar" alt="프로필 이미지" src="https://github.com/kwung0206/ecommerce/blob/main/profile.jpg?raw=1" />
+      <div>
+        <h1>AI-Collector <span class="muted">/ AI 영상 모음 사이트</span></h1>
+        <a class="hero-link" href="https://aicollector.co.kr" target="_blank" rel="noopener">
+            aicollector.co.kr
+        </a>
+        <div class="badge">생성형 AI 영상 공유 · 카테고리 정리 · 프롬프트 기반 추천 · 유해 영상 필터링</div>
+        <p class="muted" style="margin-top:10px">
+          “만들고 싶은 영상을 더 빨리, 더 정확하게.”<br/>
+          흩어진 AI 영상을 모으고, 프롬프트로 유사 영상을 찾아 시행착오를 줄이는 플랫폼을 목표로 개발했습니다.
+        </p>
+        <div class="btn-row">
+          <a class="btn" href="mailto:kgj0199kgj0199@gmail.com">문의 메일</a>
+          <a class="btn secondary" href="https://github.com/kwung0206" target="_blank" rel="noopener">GitHub</a>
+          <button class="btn secondary" onclick="window.print()">PDF로 저장(인쇄)</button>
+        </div>
+        <div class="chips" aria-hidden="true">
+          <span class="chip">개인 프로젝트</span>
+          <span class="chip">2025.05 ~ 진행중</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 개발 개요 -->
+    <section id="overview" class="grid grid-2">
+      <div class="card">
+        <h2>개발 개요</h2>
+        <p>
+          생성형 AI 영상은 “프롬프트 수정 → 스타일 변경 → 재생성”을 반복하며 결과물을 맞춰가는 경우가 많습니다.
+          이 과정이 길어질수록 제작 비용(시간)이 커지고, 기대와 다른 결과가 나오면 다시 처음으로 돌아가야 합니다.
+        </p>
+        <p>
+          AI-Collector는 생성된 영상들을 <strong>공유/정리</strong>하고, <strong>프롬프트로 빠르게 탐색</strong>할 수 있게 만들어
+          “시행착오를 줄이는 영상 허브”를 지향합니다.
+        </p>
+      </div>
+      <div class="card">
+        <h2>프로젝트 메타</h2>
+        <p><strong>형태</strong> · 1인 풀스택 & DevOps + AI 파이프라인</p>
+        <p><strong>핵심</strong> · 정리(태그/카테고리) + 추천(프롬프트) + 안전(유해 필터)</p>
+        <div class="hr"></div>
+        <div class="chips">
+          <span class="pill">정리</span>
+          <span class="pill">추천</span>
+          <span class="pill">안전</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 문제/해결 -->
+    <section id="problem" class="card">
+      <h2>문제 정의 & 해결 방향</h2>
+      <div class="grid grid-2" style="margin-top:10px">
+        <div>
+          <h3>문제</h3>
+          <ul>
+            <li>생성 반복으로 <strong>시간이 과도하게 소모</strong></li>
+            <li>결과물이 기대와 달라 <strong>재생성 루프</strong>가 발생</li>
+            <li>참고 자료가 흩어져 있어 <strong>비교/탐색</strong>이 어려움</li>
+          </ul>
+        </div>
+        <div>
+          <h3>해결</h3>
+          <ul>
+            <li>생성된 영상을 <strong>공유</strong>해 레퍼런스를 쌓고</li>
+            <li><strong>카테고리/태그</strong>로 정리하고</li>
+            <li><strong>프롬프트 기반</strong>으로 유사 영상을 추천</li>
+            <li><strong>유해 영상 필터링</strong>으로 안전한 플랫폼 유지</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 주요 기능 -->
+    <section id="features" class="grid">
+      <div class="card">
+        <h2>주요 기능</h2>
+        <p class="muted">사용자가 “찾고 싶은 영상”에 빠르게 도달하도록, 정리/추천/안전 흐름으로 설계했습니다.</p>
+      </div>
+
+      <div class="card">
+        <h3>카테고리 정리</h3>
+        <ul>
+          <li>태그 기반 필터링, 정렬(최신/조회/반응)</li>
+          <li>업로드 영상의 프레임/특징 추출(분석용)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>프롬프트 기반 추천</h3>
+        <ul>
+          <li>목적/스타일/키워드를 입력하면 유사 영상을 추천</li>
+          <li>결과물 비교 → 프롬프트 수정 비용을 줄이는 UX</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>AI 유해 영상 필터링</h3>
+        <ul>
+          <li>AI 1차 감지 → 관리자 검증 → 차단/승인 처리</li>
+          <li>안전한 공유 환경 유지</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ✅ 시스템 구조(이미지 포함) -->
+    <section id="architecture" class="card">
+      <h2>시스템 구조도</h2>
+      <p class="muted">
+        아래 이미지는 실제 구성한 시스템 구조도입니다. (profile.jpg와 같은 경로의 <code>picture.png</code> 사용)
+      </p>
+
+      <div class="figure">
+        <img
+          src="https://github.com/kwung0206/ecommerce/blob/main/picture.png?raw=1"
+          alt="AI-Collector 시스템 구조도"
+          loading="lazy"
+        />
+        <div class="figcap">
+          System Diagram · Front(React) / Back(Spring Boot) / DB(Oracle) / Storage / AI Tagging / Nginx(SSL) 구성
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <h3>아키텍처 요약</h3>
+      <ul>
+        <li><strong>Front</strong> · React/Vite</li>
+        <li><strong>Back</strong> · Spring Boot API (인증/영상/추천/관리자)</li>
+        <li><strong>DB</strong> · Oracle (메타데이터/태그/상태/반응)</li>
+        <li><strong>AI</strong> · 태깅(프레임 기반 분석) 모듈 연동</li>
+        <li><strong>Proxy</strong> · Nginx + HTTPS</li>
+      </ul>
+    </section>
+
+    <!-- ✅ 태깅 코드: 링크 + 스크롤 박스(자동 로딩) -->
+    <section id="code" class="card">
+      <h2>영상 태깅 코드</h2>
+      <p>
+        영상에 태그를 부여하는 파이썬 코드:
+        <a href="https://github.com/kwung0206/ecommerce/blob/main/desktop_ml_daemon.py" target="_blank" rel="noopener">
+          desktop_ml_daemon.py (GitHub)
+        </a>
+      </p>
+
+      <div class="code-card-head">
+        <div class="code-meta">
+          <span class="pill">스크롤로 보기</span>
+          <span class="pill">raw 로드</span>
+        </div>
+        <div class="btn-row" style="margin-top:0">
+          <button class="btn secondary" type="button" onclick="reloadCode()">코드 다시 불러오기</button>
+          <button class="btn secondary" type="button" onclick="copyCode()">코드 복사</button>
+        </div>
+      </div>
+
+      <pre class="codebox" id="codeBox">코드 불러오는 중…</pre>
+      <p class="muted" style="font-size:12px;margin-top:10px">
+        만약 코드가 안 뜨면, 파일 경로/브랜치(main) 또는 저장소가 다른 경우일 수 있어요.
+        위 GitHub 링크는 그대로 동작합니다.
+      </p>
+    </section>
+
+    <!-- 기술 스택 -->
+    <section id="stack" class="card">
+      <h2>Tech Stack</h2>
+      <div class="grid grid-3">
+        <div>
+          <h3>Frontend</h3>
+          <ul>
+            <li>React + Vite</li>
+            <li>반응형 카드 UI, SCSS</li>
+            <li>목록/상세/업로드/찾기 UX</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Backend</h3>
+          <ul>
+            <li>Spring Boot, REST API</li>
+            <li>JWT 인증/인가</li>
+            <li>관리자(Admin) 기능 분리</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Infra</h3>
+          <ul>
+            <li>Docker/Compose</li>
+            <li>Nginx Reverse Proxy + SSL</li>
+            <li>로그/운영 자동화 스크립트</li>
+          </ul>
+        </div>
+      </div>
+      <div class="chips" aria-hidden="true">
+        <span class="chip">React</span>
+        <span class="chip">Spring Boot</span>
+        <span class="chip">Oracle</span>
+        <span class="chip">Docker</span>
+        <span class="chip">Nginx</span>
+        <span class="chip">Python</span>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="card">
+      <h2>Contact</h2>
+      <p>프로젝트 관련 질문, 코드/아키텍처 공유, 협업 제안 모두 환영합니다.</p>
+      <div class="btn-row">
+        <a class="btn" href="mailto:kgj0199kgj0199@gmail.com">kgj0199kgj0199@gmail.com</a>
+        <a class="btn secondary" href="https://github.com/kwung0206" target="_blank" rel="noopener">github.com/kwung0206</a>
+      </div>
+      <p class="muted" style="font-size:12px;margin-top:12px">
+        프로필 이미지: <a href="https://github.com/kwung0206/ecommerce/blob/main/profile.jpg" target="_blank" rel="noopener">profile.jpg</a> ·
+        구조도: <a href="https://github.com/kwung0206/ecommerce/blob/main/picture.png" target="_blank" rel="noopener">picture.png</a>
+      </p>
+    </section>
+
+<section id="screens" class="card">
+  <h2>화면 미리보기</h2>
+  <p class="muted">홈 → 영상 모음 → Finding 순서로 정리했습니다. (클릭하면 원본으로 열립니다)</p>
+
+  <div class="grid grid-3 gallery">
+    <!-- 1) 홈 -->
+    <figure class="shot">
+      <a href="https://github.com/kwung0206/ecommerce/blob/main/home.png?raw=1" target="_blank" rel="noopener">
+        <img src="https://github.com/kwung0206/ecommerce/blob/main/home.png?raw=1" alt="홈 페이지 스크린샷" loading="lazy" />
+      </a>
+      <figcaption><strong>홈 페이지</strong> · 대표 콘텐츠/진입 화면</figcaption>
+    </figure>
+
+    <!-- 2) 영상 모음 -->
+    <figure class="shot">
+      <a href="https://github.com/kwung0206/ecommerce/blob/main/aicollectorpng.png?raw=1" target="_blank" rel="noopener">
+        <img src="https://github.com/kwung0206/ecommerce/blob/main/aicollectorpng.png?raw=1" alt="영상 모음 페이지 스크린샷" loading="lazy" />
+      </a>
+      <figcaption><strong>영상 모음 페이지</strong> · 목록/필터/탐색</figcaption>
+    </figure>
+
+    <!-- 3) Finding -->
+    <figure class="shot">
+      <a href="https://github.com/kwung0206/ecommerce/blob/main/finding.png?raw=1" target="_blank" rel="noopener">
+        <img src="https://github.com/kwung0206/ecommerce/blob/main/finding.png?raw=1" alt="Finding 페이지 스크린샷" loading="lazy" />
+      </a>
+      <figcaption><strong>Finding 페이지</strong> · 프롬프트 기반 검색/추천</figcaption>
+    </figure>
+<figure class="shot">
+  <a href="https://github.com/kwung0206/ecommerce/blob/main/user2.png?raw=1"
+     target="_blank" rel="noopener">
+    <img src="https://github.com/kwung0206/ecommerce/blob/main/user2.png?raw=1"
+         alt="사용자 피드백 화면 스크린샷"
+         loading="lazy" />
+  </a>
+  <figcaption>
+    <strong>사용자 피드백</strong> · 댓글/반응 기반 개선 흐름
+  </figcaption>
+</figure>
+
+  </div>
+</section>
+  </main>
+
+  <footer class="footer">
+    <div class="container muted">
+      © <span id="year"></span> 김광진 — AI-Collector
+    </div>
+  </footer>
+
+  <script>
+    function toggleMenu(){
+      const el = document.getElementById('mobileMenu');
+      el.classList.toggle('open');
+    }
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click',()=>{
+        const m=document.getElementById('mobileMenu');
+        if(m && m.classList.contains('open')) m.classList.remove('open');
+      })
+    });
+
+    // ✅ raw 코드 로딩 (자동)
+const RAW_CODE_URL =
+  "https://raw.githubusercontent.com/kwung0206/ecommerce/main/desktop_ml_daemon.py";
+
+async function loadCode(){
+  const box = document.getElementById("codeBox");
+  try{
+    box.textContent = "코드 불러오는 중…";
+    const res = await fetch(RAW_CODE_URL, { cache: "no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    box.textContent = await res.text();
+  }catch(err){
+    box.textContent =
+      "코드를 불러오지 못했습니다. (" + err.message + ")\n\n" +
+      "1) 파일 경로/브랜치(main) 확인\n" +
+      "2) 저장소가 다른 경우 RAW_CODE_URL 수정\n\n" +
+      "대신 GitHub 링크로 확인 가능:\n" +
+      "https://github.com/kwung0206/ecommerce/blob/main/desktop_ml_daemon.py";
+  }
+}
+
+    loadCode();
+  </script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
