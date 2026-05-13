@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AICollector</title>
+  <meta name="description" content="AICollector 프로젝트 허브: backend, frontend, ecommerce 포트폴리오 페이지" />
+  <meta property="og:title" content="AICollector" />
+  <meta property="og:description" content="AI 영상 컬렉션 플랫폼의 backend, frontend, ecommerce 페이지 모음" />
+  <meta property="og:image" content="./legacy/ecommerce/profile.jpg" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --card: #0d1117;
+      --border: #30363d;
+      --text: #f0f6fc;
+      --muted: #8b949e;
+      --link: #2f81f7;
+      --line-java: #b07219;
+      --line-ts: #3178c6;
+      --line-page: #22c55e;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:hover { color: var(--link); text-decoration: underline; }
+
+    .page { min-height: 100vh; background: var(--bg); }
+
+    .profile-band {
+      border-bottom: 1px solid var(--border);
+      padding: 28px 20px 38px;
+    }
+
+    .profile-inner {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .avatar {
+      width: 112px;
+      height: 112px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      object-fit: cover;
+      background: #161b22;
+    }
+
+    .org-name {
+      margin: 0;
+      padding-top: 4px;
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .org-desc {
+      max-width: 760px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .quick-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .quick-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: #c9d1d9;
+      background: #161b22;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .quick-link:hover { background: #21262d; text-decoration: none; }
+
+    .content {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 30px 20px 56px;
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .repo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .repo-card {
+      min-height: 116px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 18px 18px 16px;
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .repo-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .repo-name { color: var(--link); font-size: 16px; font-weight: 600; }
+
+    .visibility {
+      flex: 0 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 1px 7px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 500;
+    }
+
+    .repo-desc {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .repo-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--line-page);
+    }
+
+    .dot-java { background: var(--line-java); }
+    .dot-ts { background: var(--line-ts); }
+    .dot-page { background: var(--line-page); }
+
+    .footer {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 0 20px 28px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .profile-band { padding-top: 22px; }
+      .profile-inner { grid-template-columns: 78px 1fr; gap: 16px; }
+      .avatar { width: 78px; height: 78px; }
+      .org-name { font-size: 23px; }
+      .repo-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="profile-band">
+      <div class="profile-inner">
+        <img class="avatar" src="./legacy/ecommerce/profile.jpg" alt="AICollector profile" />
+        <div>
+          <h1 class="org-name">AICollector</h1>
+          <p class="org-desc">
+            생성형 AI 영상 결과물을 모으고, 찾고, 다시 활용하기 위한 프로젝트 허브입니다.
+            backend, frontend, ecommerce 소개 페이지를 한 곳에서 바로 볼 수 있습니다.
+          </p>
+          <nav class="quick-links" aria-label="Quick links">
+            <a class="quick-link" href="https://github.com/kwung0206/aicollector/tree/main/backend">backend</a>
+            <a class="quick-link" href="https://github.com/kwung0206/aicollector/tree/main/frontend">frontend</a>
+            <a class="quick-link" href="./ecommerce/">ecommerce page</a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <h2 class="section-title">Popular repositories</h2>
+      <section class="repo-grid" aria-label="AICollector pages">
+        <a class="repo-card" href="https://github.com/kwung0206/aicollector/tree/main/backend">
+          <div>
+            <div class="repo-head">
+              <span class="repo-name">aicollector-backend</span>
+              <span class="visibility">Public</span>
+            </div>
+            <p class="repo-desc">Spring Boot API 서버와 영상 분석/저장 로직</p>
+          </div>
+          <div class="repo-meta"><span class="dot dot-java"></span><span>Java</span></div>
+        </a>
+
+        <a class="repo-card" href="https://github.com/kwung0206/aicollector/tree/main/frontend">
+          <div>
+            <div class="repo-head">
+              <span class="repo-name">aicollector-frontend</span>
+              <span class="visibility">Public</span>
+            </div>
+            <p class="repo-desc">React와 Vite로 구성한 사용자 웹 애플리케이션</p>
+          </div>
+          <div class="repo-meta"><span class="dot dot-ts"></span><span>React</span></div>
+        </a>
+
+        <a class="repo-card" href="./ecommerce/">
+          <div>
+            <div class="repo-head">
+              <span class="repo-name">ecommerce</span>
+              <span class="visibility">Public</span>
+            </div>
+            <p class="repo-desc">AICollector 프로젝트 소개와 화면 캡처를 담은 포트폴리오 페이지</p>
+          </div>
+          <div class="repo-meta"><span class="dot dot-page"></span><span>Page</span></div>
+        </a>
+      </section>
+    </main>
+
+    <footer class="footer"><span>AICollector project hub</span></footer>
+  </div>
+</body>
+</html>
