@@ -13,12 +13,14 @@ AICollector는 이런 비효율을 줄이기 위해 만들어졌습니다.
 
 ## 포트폴리오
 
-프로젝트 소개 및 시연용 포트폴리오 페이지:
+프로젝트 허브 및 시연용 포트폴리오 페이지:
 
-- <https://kwung0206.github.io/ecommerce/>
+- <https://kwung0206.github.io/aicollector/>
+- <https://kwung0206.github.io/aicollector/ecommerce/>
 
 이 저장소는 AICollector의 실제 서비스 코드(프론트엔드/백엔드)를 관리하는 메인 저장소이고,
-위 포트폴리오 페이지는 프로젝트 개요와 결과물을 보여주는 소개 페이지 역할을 합니다.
+위 페이지는 backend, frontend, ecommerce 소개 페이지를 연결하는 허브와
+프로젝트 개요 및 결과물을 보여주는 소개 페이지 역할을 합니다.
 
 ## 핵심 기능
 
@@ -59,7 +61,8 @@ AICollector는 이런 비효율을 줄이기 위해 만들어졌습니다.
 ```text
 .
 ├── frontend/   # 사용자용 웹 애플리케이션
-└── backend/    # API 서버 및 영상 분석/저장 로직
+├── backend/    # API 서버 및 영상 분석/저장 로직
+└── ecommerce/  # GitHub Pages용 프로젝트 소개 페이지
 ```
 
 ## 기대 효과
